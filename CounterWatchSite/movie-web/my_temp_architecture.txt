@@ -1,0 +1,36 @@
+
+src/
+ ├─ api/                # HTTP / axios
+ │   ├─ axios.ts
+ │   └─ movies.api.ts
+ │
+ ├─ components/         # UI компоненти
+ │   ├─ common/         # Button, Modal, Loader
+ │   ├─ movie/          # MovieCard, MovieGrid
+ │   └─ layout/         # Header, Footer
+ │
+ ├─ layouts/            # Layout-и (ВАЖЛИВО)
+ │   ├─ UserLayout.tsx
+ │   └─ AdminLayout.tsx
+ │
+ ├─ pages/              # СТОРІНКИ
+ │   ├─ HomePage.tsx
+ │   ├─ MoviePage.tsx
+ │   ├─ LoginPage.tsx
+ │   ├─ admin/
+ │   │   └─ AdminDashboard.tsx
+ │   └─ NotFoundPage.tsx
+ │
+ ├─ routes/             # Роутинг окремо
+ │   └─ AppRoutes.tsx
+ │
+ ├─ store/              # Redux / Zustand (потім)
+ │
+ ├─ types/              # TypeScript типи
+ │   └─ movie.ts
+ │
+ ├─ utils/              # helpers
+ │
+ ├─ App.tsx
+ ├─ main.tsx
+ └─ index.css
