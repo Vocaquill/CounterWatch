@@ -24,6 +24,36 @@ public class GenreService(AppDbContext context,
         return mapper.Map<GenreItemModel>(entity);
     }
 
+    public async Task DeleteGenreAsync(GenreDeleteModel model)
+    {
+        var entity = context.Genres.FirstOrDefault(x => x.Id == model.Id && !x.IsDeleted);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            context.Genres.Update(entity);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public async Task<GenreItemModel> EditGenreAsync(GenreEditModel model)
+    {
+        var entity = await context.Genres
+            .FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
+
+        if (entity!.Image != null)
+            await imageService.DeleteImageAsync(entity.Image);
+
+        mapper.Map(model, entity);
+
+        if (model.Image != null)
+            entity.Image = await imageService.SaveImageAsync(model.Image);
+
+        await context.SaveChangesAsync();
+
+        return mapper.Map<GenreItemModel>(entity);
+    }
+
+
     public async Task<SearchResult<GenreItemModel>> SearchGenreAsync(GenreSearchModel model)
     {
         int currentPage = model.Page < 1 ? 1 : model.Page;

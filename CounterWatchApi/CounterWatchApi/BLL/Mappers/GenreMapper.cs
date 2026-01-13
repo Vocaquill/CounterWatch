@@ -12,5 +12,9 @@ public class GenreMapper : Profile
 
         CreateMap<GenreCreateModel, GenreEntity>()
             .ForMember(x => x.Image, opt => opt.Ignore());
+
+        CreateMap<GenreEditModel, GenreEntity>()
+            .ForMember(x => x.Image, opt => opt.Ignore())
+            .ForMember(x => x.Id, opt => opt.Ignore());
     }
 }
