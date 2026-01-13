@@ -1,5 +1,6 @@
 using BLL.Interfaces;
 using BLL.Services;
+using CounterWatchApi.Filters;
 using DAL;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,11 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddOpenApi(options =>
 {
@@ -44,18 +50,16 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
-
 builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IImageService, ImageService>();
