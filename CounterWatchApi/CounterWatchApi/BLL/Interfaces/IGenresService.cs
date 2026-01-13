@@ -6,4 +6,5 @@ namespace BLL.Interfaces;
 public interface IGenresService
 {
     Task<SearchResult<GenreItemModel>> SearchGenreAsync(GenreSearchModel model);
+    Task<GenreItemModel> CreateGenreAsync(GenreCreateModel model);
 }

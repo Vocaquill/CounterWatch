@@ -10,6 +10,11 @@ namespace BLL.Services;
 
 public class GenreService(AppDbContext context, IMapper mapper) : IGenresService
 {
+    public Task<GenreItemModel> CreateGenreAsync(GenreCreateModel model)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<SearchResult<GenreItemModel>> SearchGenreAsync(GenreSearchModel model)
     {
         int currentPage = model.Page < 1 ? 1 : model.Page;

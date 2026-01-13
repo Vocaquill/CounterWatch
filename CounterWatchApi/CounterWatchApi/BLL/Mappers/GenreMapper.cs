@@ -9,5 +9,8 @@ public class GenreMapper : Profile
     public GenreMapper()
     {
         CreateMap<GenreEntity, GenreItemModel>();
+
+        CreateMap<GenreCreateModel, GenreEntity>()
+            .ForMember(x => x.Image, opt => opt.Ignore());
     }
 }
