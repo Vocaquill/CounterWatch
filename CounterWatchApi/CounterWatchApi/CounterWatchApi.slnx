@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="BLL/BLL.csproj" Id="32a24bea-d342-45bb-ab62-24f1170952ce" />
   <Project Path="CounterWatchApi/CounterWatchApi.csproj" />
+  <Project Path="DAL/DAL.csproj" Id="4ac6a26c-21b5-4f42-9d12-1499c8fdbbdc" />
 </Solution>
