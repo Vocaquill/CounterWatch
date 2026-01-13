@@ -8,11 +8,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services;
 
-public class GenreService(AppDbContext context, IMapper mapper) : IGenresService
+public class GenreService(AppDbContext context, 
+    IMapper mapper,
+    IImageService imageService) : IGenresService
 {
-    public Task<GenreItemModel> CreateGenreAsync(GenreCreateModel model)
+    public async Task<GenreItemModel> CreateGenreAsync(GenreCreateModel model)
     {
-        throw new NotImplementedException();
+        var entity = mapper.Map<GenreEntity>(model);
+
+        entity.Image = model.Image != null ? await imageService.SaveImageAsync(model.Image) : null;
+
+        context.Genres.Add(entity);
+        await context.SaveChangesAsync();
+
+        return mapper.Map<GenreItemModel>(entity);
     }
 
     public async Task<SearchResult<GenreItemModel>> SearchGenreAsync(GenreSearchModel model)
