@@ -74,6 +74,12 @@ public class GenreService(AppDbContext context,
             query = query.Where(x => x.Name.Contains(name));
         }
 
+        if (!string.IsNullOrWhiteSpace(model.Slug))
+        {
+            string slug = model.Slug.Trim();
+            query = query.Where(x => x.Slug.Contains(slug));
+        }
+
         int totalCount = await query.CountAsync();
 
         int totalPages = (int)Math.Ceiling(totalCount / (double)itemsPerPage);
