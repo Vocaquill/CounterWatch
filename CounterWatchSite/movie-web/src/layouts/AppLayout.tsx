@@ -1,32 +1,26 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import { Menu, X } from 'lucide-react' // Рекомендую встановити lucide-react для іконок
-
+import Header from '../components/Header' // Імпортуємо хедер
+import PageTransition from '../components/PageTransition';
 function AppLayout() {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
 
   const toggleSidebar = () => setIsOpen(!isOpen)
-
+  const location = useLocation();
   return (
-    <div className="flex min-h-screen bg-zinc-900 text-white overflow-x-hidden">
-      {/* Sidebar з пропсами */}
+    <div className="flex min-h-screen bg-zinc-900 text-white">
       <Sidebar isOpen={isOpen} />
 
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Хедер або просто кнопка перемикання */}
-        <header className="p-4 border-b border-zinc-800 flex items-center bg-zinc-900/50 backdrop-blur-md sticky top-0 z-10">
-          <button
-            onClick={toggleSidebar}
-            className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <span className="ml-4 font-semibold text-zinc-400">Меню</span>
-        </header>
+        {/* Передаємо стан і функцію в Header */}
+        <Header isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
         <div className="p-6">
-          <Outlet />
+          {/* Анімація спрацьовуватиме при кожній зміні path */}
+          <PageTransition key={location.pathname}>
+            <Outlet />
+          </PageTransition>
         </div>
       </main>
     </div>

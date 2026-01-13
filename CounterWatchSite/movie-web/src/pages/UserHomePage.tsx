@@ -1,5 +1,16 @@
 
+import { useNavigate } from 'react-router-dom'; // Додали useLocation
+
 function UserHomePage() {
+
+  const navigate = useNavigate();
+
+  const onMainSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      navigate(`/search?q=${e.currentTarget.value}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
 
@@ -16,6 +27,7 @@ function UserHomePage() {
           </p>
 
           <input
+            onKeyDown={onMainSearch}
             type="text"
             placeholder="Search movies..."
             className="w-full max-w-3xl px-6 py-3 rounded bg-zinc-800 text-white outline-none focus:ring-2 focus:ring-red-500"
