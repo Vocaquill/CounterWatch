@@ -6,7 +6,7 @@ import UserHomePage from './pages/UserHomePage.tsx'
 
 //For all 
 import AppLayout from './layouts/AppLayout.tsx'
-
+import SearchPage from './pages/SearchPage';
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<UserHomePage />} />
         <Route path="/movie/:id" element={<h1>Movie page</h1>} />
+        <Route path="search" element={<SearchPage />} />
       </Route>
     </Routes>
   )
