@@ -9,4 +9,6 @@ public interface IGenresService
     Task<GenreItemModel> CreateGenreAsync(GenreCreateModel model);
     Task<GenreItemModel> EditGenreAsync(GenreEditModel model);
     Task DeleteGenreAsync(GenreDeleteModel model);
+    Task<GenreItemModel?> GetGenreBySlugAsync(GenreGetBySlugModel model);
+    Task SeedGenresAsync(string jsonPath);
 }

@@ -2,9 +2,11 @@
 using BLL.Interfaces;
 using BLL.Models.Genre;
 using BLL.Models.Search;
+using BLL.Models.Seeder;
 using DAL;
 using DAL.Entities.Genre;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace BLL.Services;
 
@@ -53,6 +55,14 @@ public class GenreService(AppDbContext context,
         return mapper.Map<GenreItemModel>(entity);
     }
 
+    public Task<GenreItemModel?> GetGenreBySlugAsync(GenreGetBySlugModel model)
+    {
+        return context.Genres
+            .AsNoTracking()
+            .Where(x => !x.IsDeleted && x.Slug == model.Slug)
+            .Select(x => mapper.Map<GenreItemModel>(x))
+            .FirstOrDefaultAsync();
+    }
 
     public async Task<SearchResult<GenreItemModel>> SearchGenreAsync(GenreSearchModel model)
     {
@@ -102,5 +112,52 @@ public class GenreService(AppDbContext context,
                 CurrentPage = currentPage
             }
         };
+    }
+
+    public async Task SeedGenresAsync(string jsonPath)
+    {
+        if (!File.Exists(jsonPath))
+        {
+            Console.WriteLine($"Genres seed file not found: {jsonPath}");
+            return;
+        }
+
+        if (await context.Genres.AnyAsync())
+            return;
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(jsonPath);
+
+            var items = JsonConvert.DeserializeObject<List<GenreSeeder>>(json);
+            if (items == null || items.Count == 0)
+                return;
+
+            var entities = mapper.Map<List<GenreEntity>>(items);
+
+            foreach (var entity in entities)
+            {
+                var source = items.First(x => x.Slug == entity.Slug);
+
+                if (!string.IsNullOrWhiteSpace(source.ImagePath))
+                {
+                    if (source.ImagePath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        entity.Image = await imageService.SaveImageFromUrlAsync(source.ImagePath);
+                    }
+                }
+            }
+
+            await context.Genres.AddRangeAsync(entities);
+            await context.SaveChangesAsync();
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON parse error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Seed genres error: {ex.Message}");
+        }
     }
 }
