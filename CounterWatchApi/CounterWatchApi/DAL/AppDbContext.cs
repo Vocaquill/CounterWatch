@@ -1,4 +1,5 @@
 ﻿using DAL.Entities.Common;
+using DAL.Entities.Genre;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL;
@@ -10,5 +11,5 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<TestTableEntity> TestTableEntities { get; set; }
+    public DbSet<GenreEntity> Genres { get; set; }
 }
