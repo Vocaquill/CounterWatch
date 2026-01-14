@@ -1,7 +1,6 @@
 using BLL.Extensions;
 using BLL.Interfaces;
 using BLL.Services;
-using CounterWatchApi;
 using CounterWatchApi.Filters;
 using CounterWatchApi.Jobs;
 using DAL;
@@ -125,7 +124,5 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-await app.SeedData();
 
 app.Run();
