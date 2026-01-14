@@ -2,12 +2,22 @@ using BLL.Extensions;
 using BLL.Interfaces;
 using BLL.Services;
 using CounterWatchApi;
+using CounterWatchApi.Filters;
+using CounterWatchApi.Jobs;
 using DAL;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddOpenApi(options =>
 {
@@ -44,17 +54,38 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
 builder.Services.AddIdentityConfiguration();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IGenresService, GenreService>();
+builder.Services.AddScoped<IDbSeeder, DbSeeder>();
+
+builder.Services.AddQuartz(q => {
+    var jobKey = new JobKey(nameof(DbSeedJob));
+    q.AddJob<DbSeedJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity($"{nameof(DbSeedJob)}-trigger")
+        .StartNow());
+});
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
