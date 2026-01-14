@@ -1,6 +1,7 @@
 using BLL.Extensions;
 using BLL.Interfaces;
 using BLL.Services;
+using CounterWatchApi;
 using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -93,5 +94,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+await app.SeedData();
 
 app.Run();

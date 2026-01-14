@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CounterWatchApi.Controllers
 {
-
-    [Route("api/[controller]/[action]")]
     [ApiController]
+    [Route("api/[controller]/[action]")]
     public class AccountController(IJwtTokenService jwtTokenService,
             IMapper mapper, IImageService imageService,
             UserManager<UserEntity> userManager,
@@ -29,6 +28,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Register([FromForm] AccountRegisterModel model)
         {
             var user = mapper.Map<UserEntity>(model);

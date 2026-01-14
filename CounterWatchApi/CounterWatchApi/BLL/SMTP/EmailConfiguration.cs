@@ -6,5 +6,5 @@ public class EmailConfiguration
     public const string SmtpServer = "smtp.ukr.net";
     public const int Port = 2525;
     public const string UserName = "sendmessage1@ukr.net";
-    public const string Password = "yvDvv6Xcm9Ci0tTq";
+    public const string Password = "yhxz0Uq3NJHqBELt";
 }

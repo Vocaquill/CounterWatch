@@ -11,11 +11,11 @@ using System.Diagnostics;
 
 namespace CounterWatchApi.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]/[action]")]
 public class UserController(IUserService userService) : Controller
 {
-    [HttpGet("list")]
+    [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
         var model = await userService.GetAllUsersAsync();
@@ -23,7 +23,7 @@ public class UserController(IUserService userService) : Controller
         return Ok(model);
     }
 
-    [HttpPost("search")]
+    [HttpPost]
     public async Task<IActionResult> SearchUsers([FromBody] UserSearchModel model)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -38,14 +38,14 @@ public class UserController(IUserService userService) : Controller
         return Ok(result);
     }
 
-    [HttpPut("edit")]
+    [HttpPut]
     public async Task<IActionResult> EditUser([FromForm] UserEditModel model)
     {
         var res = await userService.EditUserAsync(model);
         return Ok(res);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet]
     public async Task<IActionResult> GetUserById(int id)
     {
         var user = await userService.GetUserById(id);
@@ -56,7 +56,7 @@ public class UserController(IUserService userService) : Controller
         return Ok(user);
     }
 
-    [HttpDelete("delete")]
+    [HttpDelete]
     public async Task<IActionResult> DeleteUser([FromBody] UserDeleteModel model)
     {
         await userService.DeleteUser(model.Id);
