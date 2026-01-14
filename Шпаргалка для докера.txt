@@ -1,0 +1,258 @@
+Добре, давай зробимо правильний, чистий і масштабований план, без магії на сервері, виключно через Docker + Docker Compose. Я опишу кінцеву архітектуру, файли, порти, пайплайн деплою і типові помилки, щоб ти не наступив на граблі.
+
+Я орієнтуюсь на:
+
+.NET 10 (ASP.NET Core Web API)
+
+React 19 (Vite або CRA — не принципово)
+
+чистий Linux-сервер без nginx / node / dotnet
+
+Docker Hub: pedro007salo
+
+один docker-compose.yml на сервері
+
+1. Цільова архітектура (як це буде виглядати)
+Internet
+   |
+   |-- :80 / :443
+   |
+[ Nginx (React static) ]
+           |
+           | fetch /api/*
+           v
+[ ASP.NET Core API (.NET 10) ]
+           |
+           v
+[ PostgreSQL ]
+
+
+Ключові принципи:
+
+React → статичний сайт у nginx
+
+API → окремий контейнер
+
+Nginx НЕ встановлюється на сервер
+
+Серверу потрібен лише:
+
+Docker
+
+Docker Compose
+
+2. Фінальна структура репозиторію
+CounterWatch
+│
+├── docker-compose.yml
+├── build_and_push.bat
+│
+├── CounterWatchApi
+│   ├── CounterWatchApi
+│   │   ├── CounterWatchApi.csproj
+│   │   ├── Program.cs
+│   │   └── ...
+│   └── Dockerfile
+│
+└── CounterWatchSite
+    └── movie-web
+        ├── src
+        ├── index.html
+        ├── package.json
+        ├── nginx.conf
+        └── Dockerfile
+
+3. Dockerfile для API (.NET 10)
+
+📍 CounterWatchApi/Dockerfile
+
+# ===== BUILD =====
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+WORKDIR /src
+
+COPY CounterWatchApi/CounterWatchApi.csproj CounterWatchApi/
+RUN dotnet restore CounterWatchApi/CounterWatchApi.csproj
+
+COPY . .
+WORKDIR /src/CounterWatchApi
+RUN dotnet publish -c Release -o /app/publish
+
+# ===== RUNTIME =====
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
+WORKDIR /app
+
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "CounterWatchApi.dll"]
+
+Важливо
+
+API працює на 8080 усередині контейнера
+
+Зовнішній порт налаштуємо в compose
+
+4. Dockerfile для React 19
+
+📍 CounterWatchSite/movie-web/Dockerfile
+
+# ===== BUILD =====
+FROM node:20-alpine AS build
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# ===== NGINX =====
+FROM nginx:alpine
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+5. nginx.conf для React (proxy на API)
+
+📍 CounterWatchSite/movie-web/nginx.conf
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://api:8080/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+Чому це правильно
+
+React → /
+
+API → /api/*
+
+Жодних CORS
+
+Жодних localhost у продакшені
+
+6. docker-compose.yml (головний файл)
+
+📍 CounterWatch/docker-compose.yml
+
+version: "3.9"
+
+networks:
+  counterwatch_net:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:17
+    container_name: counterwatch-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: counterwatch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - /data/counterwatch/postgres:/var/lib/postgresql/data
+    networks:
+      - counterwatch_net
+
+  api:
+    image: pedro007salo/counterwatch-api:latest
+    container_name: counterwatch-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
+    depends_on:
+      - db
+    networks:
+      - counterwatch_net
+
+  web:
+    image: pedro007salo/counterwatch-web:latest
+    container_name: counterwatch-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - counterwatch_net
+
+7. build_and_push.bat (локально)
+@echo off
+
+REM ==== WEB ====
+cd CounterWatchSite\movie-web
+docker build -t counterwatch-web .
+docker tag counterwatch-web:latest pedro007salo/counterwatch-web:latest
+docker push pedro007salo/counterwatch-web:latest
+
+REM ==== API ====
+cd ..\..\CounterWatchApi
+docker build -t counterwatch-api .
+docker tag counterwatch-api:latest pedro007salo/counterwatch-api:latest
+docker push pedro007salo/counterwatch-api:latest
+
+echo DONE
+pause
+
+8. Деплой на сервері (з нуля)
+# 1. Встановити Docker
+curl -fsSL https://get.docker.com | sh
+
+# 2. Встановити docker-compose
+sudo apt install docker-compose -y
+
+# 3. Створити папку
+mkdir CounterWatch
+cd CounterWatch
+
+# 4. Скопіювати docker-compose.yml
+# 5. Запустити
+docker compose pull
+docker compose up -d
+
+9. Порти (фінально)
+Сервіс	Внутрішній	Зовнішній
+Web (nginx)	80	80
+API	8080	❌
+PostgreSQL	5432	❌
+10. Типові помилки (і ти їх уникнеш)
+
+❌ localhost у React
+❌ відкритий PostgreSQL порт
+❌ CORS
+❌ nginx на сервері
+❌ один Dockerfile на все
+
+11. Що можемо зробити далі
+
+HTTPS (Let's Encrypt)
+
+GitHub Actions CI/CD
+
+.env для secrets
+
+Health checks
+
+Blue-Green deploy
