@@ -1,33 +1,17 @@
 import { useState } from 'react';
-import {
-  Search,
-  Plus,
-  Edit2,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  Link2,
-  X
-} from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Calendar, Link2, X } from 'lucide-react';
 import AddGenreModal from '../../components/AddGenreModal.tsx'
-// 1. Інтерфейс даних (клас)
-interface GenreMovieAdmin {
-  id: number;           // bigint в БД
-  name: string;
-  slug: string;
-  movieCount: number;
-  dateCreate: Date;     // тип часу
-  isDelete: boolean;
-}
+import EditGenreModal from '../../components/EditGenreModal.tsx';
+import DeleteGenreModal from '../../components/DeleteGenreModal.tsx';
 
+import type { GenreMovieAdmin } from '../../types/genre.ts'
 function GenresPage() {
   // 2. Стейт для пошуку
   const [searchTerm, setSearchTerm] = useState('');
   const [slugSearch, setSlugSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false); // Стан для модалки
   // 3. Тимчасові дані (Mock Data)
-  const [genres] = useState<GenreMovieAdmin[]>([
+  const [genres, setGenres] = useState<GenreMovieAdmin[]>([
     {
       id: 10023456789,
       name: "Бойовик",
@@ -71,6 +55,59 @@ function GenresPage() {
     setSearchTerm('');
     setSlugSearch('');
   };
+
+  // Додавання Редагування
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState<GenreMovieAdmin | null>(null);
+
+  // Функція для відкриття редагування
+  const handleEditClick = (genre: GenreMovieAdmin) => {
+    setSelectedGenre(genre);
+    setIsEditModalOpen(true);
+  };
+
+  // Добавлення видалення 
+  // 2. Стейт для видалення
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [genreToDelete, setGenreToDelete] = useState<GenreMovieAdmin | null>(null);
+
+
+  // --- ФУНКЦІЇ ЛОГІКИ ---
+  // Видалення
+  const confirmDelete = () => {
+    if (genreToDelete) {
+      // У реальному додатку тут буде API запит до БД
+      setGenres(genres.filter(g => g.id !== genreToDelete.id));
+      setGenreToDelete(null);
+    }
+  };
+
+  // Збереження нового (Add)
+  const handleAddGenre = (newName: string, newSlug: string) => {
+    const newGenre: GenreMovieAdmin = {
+      id: Date.now(), // Тимчасовий ID
+      name: newName,
+      slug: newSlug,
+      movieCount: 0,
+      dateCreate: new Date(),
+      isDelete: false
+    };
+    setGenres([newGenre, ...genres]); // Додаємо на початок списку
+  };
+
+  // Оновлення існуючого (Edit)
+  const handleUpdateGenre = (updatedGenre: GenreMovieAdmin) => {
+    setGenres(genres.map(g => g.id === updatedGenre.id ? updatedGenre : g));
+  };
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -177,10 +214,17 @@ function GenresPage() {
                     {/* Actions */}
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-1">
-                        <button className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white transition-all">
+                        <button
+                          onClick={() => handleEditClick(genre)}
+                          className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white transition-all">
                           <Edit2 size={16} />
                         </button>
-                        <button className="p-2 hover:bg-red-950/30 rounded-lg text-zinc-500 hover:text-red-500 transition-all">
+                        <button
+                          onClick={() => {
+                            setGenreToDelete(genre);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          className="p-2 hover:bg-red-950/30 rounded-lg text-zinc-500 hover:text-red-500 transition-all">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -222,9 +266,25 @@ function GenresPage() {
           </div>
         </div>
       </div>
+      {/* Модалка додавання */}
       <AddGenreModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSave={handleAddGenre} // ПЕРЕДАЄМО ФУНКЦІЮ
+      />
+
+      {/* Модалка редагування */}
+      <EditGenreModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        genre={selectedGenre}
+        onSave={handleUpdateGenre} // ПЕРЕДАЄМО ФУНКЦІЮ ЗАМІСТЬ console.log
+      />
+      <DeleteGenreModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        genreName={genreToDelete?.name || ''}
       />
     </div>
   );
