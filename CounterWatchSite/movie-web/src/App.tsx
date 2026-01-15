@@ -2,6 +2,7 @@
 import { Routes, Route } from 'react-router-dom'
 //user
 import UserHomePage from './pages/UserHomePage.tsx'
+import MoviePage from './pages/MoviePage';
 //admin
 import AdminLayout from './layouts/AdminLayout.tsx'
 import GenresPage from './pages/Admin/GenresPage.tsx'
@@ -15,7 +16,7 @@ function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<UserHomePage />} />
-        <Route path="/movie/:id" element={<h1>Movie page</h1>} />
+        <Route path="/movie/:id" element={<MoviePage />} />
         <Route path="search" element={<SearchPage />} />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>

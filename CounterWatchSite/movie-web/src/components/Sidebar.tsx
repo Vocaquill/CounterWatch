@@ -14,7 +14,9 @@ function Sidebar({ isOpen }: SidebarProps) {
   ];
 
   return (
-    <aside className={`bg-zinc-950 border-r border-zinc-800 p-4 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'}`}>
+    <aside className={`bg-zinc-950 border-r border-zinc-800 p-4 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'}
+     sticky top-0 h-screen flex flex-col
+    `}>
       <div className="h-16 flex items-center mb-4 overflow-hidden">
         {/* Червоний квадрат з літерою або іконкою */}
         <div className="min-w-[48px] h-12 bg-red-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-red-900/20">
