@@ -18,7 +18,6 @@ EXPOSE 8080
 COPY --from=build /app/publish .
 
 # HTTPS
-ENV ASPNETCORE_URLS=https://0.0.0.0:8080
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/counterwatch.pfx
+
 
 ENTRYPOINT ["dotnet", "CounterWatchApi.dll"]

@@ -19,4 +19,5 @@ cd CounterWatchApi
 cd CounterWatchApi/
 
 docker build -t counterwatch-api .
+docker run -d --restart=always --name counterwatch_container -p 4790:8080 counterwatch-api
 docker run -d --restart=always -v /certs:/https -e ASPNETCORE_Kestrel__Certificates__Default__Password=StrongPassword123 --name counterwatch_container -p 4790:8080 counterwatch-api
