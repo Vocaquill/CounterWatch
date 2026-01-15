@@ -1,5 +1,5 @@
 # ===== BUILD =====
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY CounterWatchApi/CounterWatchApi.csproj CounterWatchApi/
@@ -10,7 +10,7 @@ WORKDIR /src/CounterWatchApi
 RUN dotnet publish -c Release -o /app/publish
 
 # ===== RUNTIME =====
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
 EXPOSE 8080
