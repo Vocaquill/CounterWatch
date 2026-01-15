@@ -1,3 +1,4 @@
+using BLL.Extensions;
 using BLL.Interfaces;
 using BLL.Services;
 using CounterWatchApi.Filters;
@@ -58,10 +59,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+builder.Services.AddIdentityConfiguration();
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
 });
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -81,6 +85,12 @@ builder.Services.AddQuartzHostedService(options =>
 {
     options.WaitForJobsToComplete = true;
 });
+
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<ISmtpService, SmtpService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 
