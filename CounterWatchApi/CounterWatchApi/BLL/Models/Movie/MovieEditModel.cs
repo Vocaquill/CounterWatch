@@ -6,6 +6,7 @@ public class MovieEditModel
 {
     public long Id { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
     public long GenreId { get; set; }
     public IFormFile? Image { get; set; }
     public IFormFile? Video { get; set; }

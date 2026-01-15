@@ -4,7 +4,7 @@ public class MovieItemModel
 {
     public long Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string? Slug { get; set; }
+    public string Slug { get; set; } = string.Empty;
     public DateTime ReleaseDate { get; set; }
 
     public string? Image { get; set; }
