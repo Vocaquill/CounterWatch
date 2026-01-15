@@ -114,7 +114,7 @@ var dir = builder.Configuration["ImagesDir"];
 var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
 Directory.CreateDirectory(path);
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseStaticFiles(new StaticFileOptions
 {
