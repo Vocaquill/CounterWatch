@@ -13,6 +13,17 @@ using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteFrame", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Порт твого фронтенду
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
@@ -99,8 +110,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.UseSwaggerUI(options =>
@@ -115,6 +124,8 @@ var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
 Directory.CreateDirectory(path);
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowViteFrame");
 
 app.UseStaticFiles(new StaticFileOptions
 {
