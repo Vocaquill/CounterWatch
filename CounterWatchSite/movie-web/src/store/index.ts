@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import genresReducer from './slices/genresSlice';
-import imagesReducer from './slices/imagesSlice';
+// import imagesReducer from './slices/imagesSlice';
 
 export const store = configureStore({
     reducer: {
         genres: genresReducer,
-        images: imagesReducer,
+        // images: imagesReducer,
     },
 });
 
