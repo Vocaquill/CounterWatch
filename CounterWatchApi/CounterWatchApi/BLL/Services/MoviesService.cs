@@ -13,7 +13,8 @@ public class MoviesService(
     AppDbContext context,
     IMapper mapper,
     IImageService imageService,
-    IVideoService videoService
+    IVideoService videoService,
+    IAuthService authService
 ) : IMoviesService
 {
     public async Task<MovieItemModel> CreateMovieAsync(MovieCreateModel model)
@@ -143,11 +144,6 @@ public class MoviesService(
         if (movie == null)
             throw new Exception("Movie not found");
 
-        if (model.IsLike)
-            movie.LikesCount++;
-        else
-            movie.DislikesCount++;
-
 
         await context.SaveChangesAsync();
     }
@@ -163,7 +159,7 @@ public class MoviesService(
         var comment = new CommentEntity
         {
             MovieId = model.MovieId,
-            UserId = userId,
+            UserId = await authService.GetUserId(),
             Text = model.Text,
             CreatedAt = DateTime.UtcNow
         };

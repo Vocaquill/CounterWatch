@@ -19,7 +19,7 @@ public class MovieEntity : BaseEntity<long>
     [Required]
     public DateTime ReleaseDate { get; set; }
 
-    [ForeignKey("Genre")]
+    [ForeignKey(nameof(Genre))]
     public long GenreId { get; set; }
     public GenreEntity Genre { get; set; } = null!;
 
@@ -35,8 +35,6 @@ public class MovieEntity : BaseEntity<long>
     [Column(TypeName = "decimal(3,1)")]
     public decimal? ImdbRating { get; set; }
 
-    public int LikesCount { get; set; } = 0;
-    public int DislikesCount { get; set; } = 0;
-
     public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
+    public ICollection<MovieReactionEntity> Reactions { get; set; } = new List<MovieReactionEntity>();
 }
