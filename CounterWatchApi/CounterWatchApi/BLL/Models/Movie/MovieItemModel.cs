@@ -1,4 +1,6 @@
-﻿namespace BLL.Models.Movie;
+﻿using BLL.Models.Genre;
+
+namespace BLL.Models.Movie;
 
 public class MovieItemModel
 {
@@ -11,13 +13,12 @@ public class MovieItemModel
     public string? Video { get; set; }
     public string? TrailerUrl { get; set; }
 
-    public long GenreId { get; set; }
-    public string GenreName { get; set; } = string.Empty;
+    public GenreItemModel Genre { get; set; } = new GenreItemModel();
 
     public decimal? ImdbRating { get; set; }
     public int LikesCount { get; set; }
     public int DislikesCount { get; set; }
-
+        
     public int UserRatingPercent
     {
         get

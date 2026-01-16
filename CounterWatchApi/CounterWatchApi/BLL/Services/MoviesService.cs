@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BLL.Interfaces;
 using BLL.Models.Movie;
 using BLL.Models.Search;
@@ -30,8 +31,12 @@ public class MoviesService(
         context.Movies.Add(entity);
         await context.SaveChangesAsync();
 
-        return mapper.Map<MovieItemModel>(entity);
+        return await context.Movies
+            .Where(x => x.Id == entity.Id)
+            .ProjectTo<MovieItemModel>(mapper.ConfigurationProvider)
+            .FirstAsync();
     }
+
 
     public async Task<MovieItemModel> EditMovieAsync(MovieEditModel model)
     {
@@ -138,12 +143,32 @@ public class MoviesService(
 
     public async Task ReactMovieAsync(MovieReactionModel model)
     {
-        var movie = await context.Movies
-            .FirstOrDefaultAsync(x => x.Id == model.MovieId && !x.IsDeleted);
+        var userId = await authService.GetUserId();
 
-        if (movie == null)
+        var movieExists = await context.Movies
+            .AnyAsync(x => x.Id == model.MovieId && !x.IsDeleted);
+
+        if (!movieExists)
             throw new Exception("Movie not found");
 
+        var reaction = await context.MovieReactions
+            .FirstOrDefaultAsync(x =>
+                x.MovieId == model.MovieId &&
+                x.UserId == userId
+            );
+
+        if (reaction == null)
+        {
+            reaction = mapper.Map<MovieReactionEntity>(model);
+            reaction.UserId = userId;
+
+            context.MovieReactions.Add(reaction);
+        }
+        else
+        {
+            reaction.IsLike = model.IsLike;
+            context.MovieReactions.Update(reaction);
+        }
 
         await context.SaveChangesAsync();
     }

@@ -8,14 +8,14 @@ namespace CounterWatchApi.Controllers
     [Route("api/[controller]")]
     public class MoviesController(IMoviesService moviesService) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("Search")]
         public async Task<IActionResult> SearchMovies([FromQuery] MovieSearchModel model)
         {
             var result = await moviesService.SearchMoviesAsync(model);
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpGet("GetBySlug")]
         public async Task<IActionResult> GetMovieBySlug(MovieGetBySlugModel model)
         {
             var result = await moviesService.GetMovieBySlugAsync(model);
@@ -42,6 +42,20 @@ namespace CounterWatchApi.Controllers
         public async Task<IActionResult> DeleteMovie([FromBody] MovieDeleteModel model)
         {
             await moviesService.DeleteMovieAsync(model);
+            return Ok();
+        }
+
+        [HttpPost("React")]
+        public async Task<IActionResult> ReactMovie([FromBody] MovieReactionModel model)
+        {
+            await moviesService.ReactMovieAsync(model);
+            return Ok();
+        }
+
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> AddComment([FromBody] MovieCommentCreateModel model)
+        {
+            await moviesService.AddCommentAsync(model);
             return Ok();
         }
     }

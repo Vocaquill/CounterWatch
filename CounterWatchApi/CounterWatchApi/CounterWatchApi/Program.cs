@@ -91,6 +91,8 @@ builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IMoviesService, MoviesService>();
 
 var app = builder.Build();
 
@@ -114,12 +116,20 @@ var dir = builder.Configuration["ImagesDir"];
 var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
 Directory.CreateDirectory(path);
 
-//app.UseHttpsRedirection();
-
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(path),
     RequestPath = $"/{dir}"
+});
+
+var videosDir = builder.Configuration["VideosDir"];
+var videosPath = Path.Combine(Directory.GetCurrentDirectory(), videosDir);
+Directory.CreateDirectory(videosPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(videosPath),
+    RequestPath = $"/{videosDir}"
 });
 
 app.UseAuthentication();
