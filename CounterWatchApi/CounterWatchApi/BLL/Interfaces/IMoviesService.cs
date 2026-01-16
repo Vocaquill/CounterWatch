@@ -12,7 +12,7 @@ public interface IMoviesService
 
     Task<SearchResult<MovieItemModel>> SearchMoviesAsync(MovieSearchModel model);
 
-    Task ReactMovieAsync(MovieReactionModel model, long userId);
+    Task ReactMovieAsync(MovieReactionModel model);
 
-    Task AddCommentAsync(MovieCommentCreateModel model, long userId);
+    Task AddCommentAsync(MovieCommentCreateModel model);
 }

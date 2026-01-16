@@ -135,7 +135,7 @@ public class MoviesService(
         };
     }
 
-    public async Task ReactMovieAsync(MovieReactionModel model, long userId)
+    public async Task ReactMovieAsync(MovieReactionModel model)
     {
         var movie = await context.Movies
             .FirstOrDefaultAsync(x => x.Id == model.MovieId && !x.IsDeleted);
@@ -148,10 +148,11 @@ public class MoviesService(
         else
             movie.DislikesCount++;
 
+
         await context.SaveChangesAsync();
     }
 
-    public async Task AddCommentAsync(MovieCommentCreateModel model, long userId)
+    public async Task AddCommentAsync(MovieCommentCreateModel model)
     {
         var movieExists = await context.Movies
             .AnyAsync(x => x.Id == model.MovieId && !x.IsDeleted);
