@@ -17,7 +17,5 @@ EXPOSE 8080
 
 COPY --from=build /app/publish .
 
-# HTTPS
-
 
 ENTRYPOINT ["dotnet", "CounterWatchApi.dll"]

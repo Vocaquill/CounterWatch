@@ -198,5 +198,11 @@ cd CounterWatch
 
 # 4. Скопіювати docker-compose.yml
 # 5. Запустити
-docker compose pull
-docker compose up -d
+docker-compose pull
+docker-compose up -d
+
+Стерти кеш
+
+docker-compose down --volumes --rmi all
+docker system prune -af
+docker-compose up -d

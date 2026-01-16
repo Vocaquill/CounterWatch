@@ -25,6 +25,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
+    ports:
+      - "8080:8080"   # відкритий порт для API назовні
     depends_on:
       - db
     networks:
