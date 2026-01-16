@@ -4,12 +4,17 @@ using BLL.Services;
 using CounterWatchApi.Filters;
 using CounterWatchApi.Jobs;
 using DAL;
+using DAL.Entities.Identity;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Quartz;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +75,38 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddIdentityConfiguration();
+builder.Services
+    .AddIdentity<UserEntity, RoleEntity>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+});
 
 builder.Services.AddControllers(options =>
 {
@@ -102,13 +138,13 @@ builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IMoviesService, MoviesService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapOpenApi();
+
 
 app.MapControllers();
 
@@ -123,14 +159,20 @@ var dir = builder.Configuration["ImagesDir"];
 var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
 Directory.CreateDirectory(path);
 
-app.UseHttpsRedirection();
-
-app.UseCors("AllowViteFrame");
-
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(path),
     RequestPath = $"/{dir}"
+});
+
+var videosDir = builder.Configuration["VideosDir"];
+var videosPath = Path.Combine(Directory.GetCurrentDirectory(), videosDir);
+Directory.CreateDirectory(videosPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(videosPath),
+    RequestPath = $"/{videosDir}"
 });
 
 app.UseAuthentication();

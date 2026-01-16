@@ -1,6 +1,7 @@
 ﻿using DAL.Entities.Common;
 using DAL.Entities.Genre;
 using DAL.Entities.Identity;
+using DAL.Entities.Movie;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,9 @@ public class AppDbContext :
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<GenreEntity> Genres { get; set; }
-
+    public DbSet<MovieEntity> Movies { get; set; }
+    public DbSet<CommentEntity> Comments { get; set; }
+    public DbSet<MovieReactionEntity> MovieReactions { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
