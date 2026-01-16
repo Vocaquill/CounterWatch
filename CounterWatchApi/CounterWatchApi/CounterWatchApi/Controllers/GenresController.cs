@@ -8,10 +8,17 @@ namespace CounterWatchApi.Controllers
     [Route("api/[controller]")]
     public class GenresController(IGenresService genresService) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("Search")]
         public async Task<IActionResult> SearchGenres([FromQuery] GenreSearchModel model)
         {
             var result = await genresService.SearchGenreAsync(model);
+            return Ok(result);
+        }
+
+        [HttpGet("BySlug")]
+        public async Task<IActionResult> GetGenreBySlug([FromQuery] GenreGetBySlugModel model)
+        {
+            var result = await genresService.GetGenreBySlugAsync(model);
             return Ok(result);
         }
 

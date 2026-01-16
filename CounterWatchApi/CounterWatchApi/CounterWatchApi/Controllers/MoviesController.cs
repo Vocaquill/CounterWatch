@@ -15,8 +15,8 @@ namespace CounterWatchApi.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetBySlug")]
-        public async Task<IActionResult> GetMovieBySlug(MovieGetBySlugModel model)
+        [HttpGet("BySlug")]
+        public async Task<IActionResult> GetMovieBySlug([FromQuery] MovieGetBySlugModel model)
         {
             var result = await moviesService.GetMovieBySlugAsync(model);
             return Ok(result);
