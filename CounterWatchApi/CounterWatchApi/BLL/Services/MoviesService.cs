@@ -6,7 +6,6 @@ using BLL.Models.Search;
 using DAL;
 using DAL.Entities.Movie;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Logging;
 
 namespace BLL.Services;
 
@@ -37,7 +36,6 @@ public class MoviesService(
             .FirstAsync();
     }
 
-
     public async Task<MovieItemModel> EditMovieAsync(MovieEditModel model)
     {
         var entity = await context.Movies
@@ -62,7 +60,10 @@ public class MoviesService(
 
         await context.SaveChangesAsync();
 
-        return mapper.Map<MovieItemModel>(entity);
+        return await context.Movies
+            .Where(x => x.Id == entity.Id)
+            .ProjectTo<MovieItemModel>(mapper.ConfigurationProvider)
+            .FirstAsync();
     }
 
     public async Task DeleteMovieAsync(MovieDeleteModel model)
@@ -82,11 +83,8 @@ public class MoviesService(
     {
         return context.Movies
             .AsNoTracking()
-            .Include(x => x.Genre)
-            .Include(x => x.Comments)
-                .ThenInclude(x => x.User)
             .Where(x => !x.IsDeleted && x.Slug == model.Slug)
-            .Select(x => mapper.Map<MovieItemModel>(x))
+            .ProjectTo<MovieItemModel>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
     }
 
@@ -97,7 +95,6 @@ public class MoviesService(
 
         IQueryable<MovieEntity> query = context.Movies
             .AsNoTracking()
-            .Include(x => x.Genre)
             .Where(x => !x.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(model.Title))
@@ -125,7 +122,7 @@ public class MoviesService(
             .OrderByDescending(x => x.ReleaseDate)
             .Skip((currentPage - 1) * itemsPerPage)
             .Take(itemsPerPage)
-            .Select(x => mapper.Map<MovieItemModel>(x))
+            .ProjectTo<MovieItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return new SearchResult<MovieItemModel>
