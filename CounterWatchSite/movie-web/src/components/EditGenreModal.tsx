@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux'; // Додаємо dispatch
+import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Link2, Type, Loader2 } from 'lucide-react'; // Додаємо Loader2
+import { X, Save, Link2, Type, Loader2 } from 'lucide-react';
 import { slugify } from '../utils/slugify.ts';
 import PageTransition from '../components/PageTransition';
 
@@ -14,7 +14,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   genre: GenreMovieAdmin | null;
-  onSave: () => void; // Тепер це просто сигнал про успіх
+  onSave: () => void;
 }
 
 function EditGenreModal({ isOpen, onClose, genre, onSave }: Props) {
@@ -22,7 +22,7 @@ function EditGenreModal({ isOpen, onClose, genre, onSave }: Props) {
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // Стан завантаження
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Підтягуємо дані при відкритті
   useEffect(() => {
@@ -43,16 +43,14 @@ function EditGenreModal({ isOpen, onClose, genre, onSave }: Props) {
     if (genre && name.trim() && !isSubmitting) {
       setIsSubmitting(true);
       try {
-        // Викликаємо Redux Thunk.
-        // Логіка перетворення в FormData вже має бути в genresSlice
         await dispatch(updateGenre({
           ...genre,
           name,
           slug
         })).unwrap();
 
-        onSave(); // Повідомляємо GenresPage про успіх
-        onClose(); // Закриваємо модалку
+        onSave();
+        onClose();
       } catch (error) {
         console.error("Помилка при оновленні жанру:", error);
       } finally {

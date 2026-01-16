@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'; // Додали useEffect
-import { useDispatch, useSelector } from 'react-redux'; // Redux хуки
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Search, Plus, Edit2, Trash2, Calendar, Link2, X, Loader2 } from 'lucide-react';
 
 import AddGenreModal from '../../components/AddGenreModal.tsx';
@@ -59,8 +59,6 @@ function GenresPage() {
     setGenreToDelete(null); // Очищаємо стейт
   };
 
-  // Для Add та Edit ми просто закриваємо модалки тут,
-  // а самі dispatch будуть всередині AddGenreModal та EditGenreModal
   const handleAddSuccess = () => {
     setIsModalOpen(false);
   };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux'; // Додаємо dispatch
+import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Link2, Type, Loader2 } from 'lucide-react'; // Додав Loader2
+import { X, Save, Link2, Type, Loader2 } from 'lucide-react';
 import { slugify } from '../utils/slugify.ts';
 import PageTransition from '../components/PageTransition';
 
@@ -11,7 +11,7 @@ import { addGenre } from '../store/slices/genresSlice.ts';
 
 interface Props {
   isOpen: boolean;
-  onSave: () => void; // Тепер це просто колбек успіху
+  onSave: () => void;
   onClose: () => void;
 }
 
@@ -20,7 +20,7 @@ function AddGenreModal({ isOpen, onClose, onSave }: Props) {
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // Стан завантаження
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -38,11 +38,9 @@ function AddGenreModal({ isOpen, onClose, onSave }: Props) {
     if (name.trim() && !isSubmitting) {
       setIsSubmitting(true);
       try {
-        // Відправляємо дані на бекенд через Redux Thunk
-        // Ми передаємо об'єкт, який очікує ваш API (name та slug)
         await dispatch(addGenre({ name, slug })).unwrap();
 
-        onSave();  // Викликаємо функцію закриття модалки (handleAddSuccess у GenresPage)
+        onSave();
         onClose();
       } catch (error) {
         // Помилка вже обробляється в слайсі, але тут можна додати локальне сповіщення

@@ -51,7 +51,7 @@ export const addGenre = createAsyncThunk<
 // 3. Редагування жанру
 export const updateGenre = createAsyncThunk<
     GenreMovieAdmin,
-    GenreMovieAdmin, // Приймаємо повний об'єкт жанру
+    GenreMovieAdmin,
     { rejectValue: string }
 >(
     'genres/updateGenre',

@@ -10,10 +10,10 @@ import { deleteGenre } from '../store/slices/genresSlice.ts';
 
 interface Props {
   isOpen: boolean;
-  genreId: number | null; // Додаємо це
+  genreId: number | null;
   genreName: string;
   onClose: () => void;
-  onSuccess: () => void;  // Замінюємо onConfirm на onSuccess
+  onSuccess: () => void;
 }
 
 function DeleteGenreModal({ isOpen, genreId, genreName, onClose, onSuccess }: Props) {
@@ -24,11 +24,10 @@ function DeleteGenreModal({ isOpen, genreId, genreName, onClose, onSuccess }: Pr
     if (genreId && !isDeleting) {
       setIsDeleting(true);
       try {
-        // Викликаємо видалення в Redux
         await dispatch(deleteGenre(genreId)).unwrap();
 
-        onSuccess(); // Очищаємо вибраний жанр у GenresPage
-        onClose();   // Закриваємо модалку
+        onSuccess();
+        onClose();
       } catch (error) {
         console.error("Помилка при видаленні жанру:", error);
       } finally {

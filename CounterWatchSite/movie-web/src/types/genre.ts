@@ -4,14 +4,14 @@ export interface GenreMovieAdmin {
   id: number;
   name: string;
   slug: string;
-  image?: string;         // Додаємо опціональне поле image
-  movieCount?: number;    // Робимо опціональним
-  dateCreate?: string;    // Робимо опціональним
-  isDelete?: boolean;     // Робимо опціональним
+  image?: string;
+  movieCount?: number;
+  dateCreate?: string;
+  isDelete?: boolean;
 }
 
 export interface GenresState {
-  items: GenreMovieAdmin[];         // Масив жанрів
-  status: 'idle' | 'loading' | 'succeeded' | 'failed'; // Статус запиту
-  error: string | null;             // Текст помилки, якщо вона є
+  items: GenreMovieAdmin[];
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
 }
