@@ -8,10 +8,17 @@ namespace CounterWatchApi.Controllers
     [Route("api/[controller]")]
     public class GenresController(IGenresService genresService) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("Search")]
         public async Task<IActionResult> SearchGenres([FromQuery] GenreSearchModel model)
         {
             var result = await genresService.SearchGenreAsync(model);
+            return Ok(result);
+        }
+
+        [HttpGet("BySlug")]
+        public async Task<IActionResult> GetGenreBySlug([FromQuery] GenreGetBySlugModel model)
+        {
+            var result = await genresService.GetGenreBySlugAsync(model);
             return Ok(result);
         }
 
@@ -21,6 +28,21 @@ namespace CounterWatchApi.Controllers
         {
             var result = await genresService.CreateGenreAsync(model);
             return Ok(result);
+        }
+
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> EditGenre([FromForm] GenreEditModel model)
+        {
+            var result = await genresService.EditGenreAsync(model);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteGenre([FromBody] GenreDeleteModel model)
+        {
+            await genresService.DeleteGenreAsync(model);
+            return Ok();
         }
     }
 }
