@@ -134,11 +134,11 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 5L * 1024 * 1024 * 1024; // 5 GB
-    options.MultipartHeadersLengthLimit = int.MaxValue;
-});
+//builder.Services.Configure<FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 5L * 1024 * 1024 * 1024; // 5 GB
+//    options.MultipartHeadersLengthLimit = int.MaxValue;
+//});
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
@@ -147,6 +147,16 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IMoviesService, MoviesService>();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = long.MaxValue;
+});
 
 var app = builder.Build();
 
