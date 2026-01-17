@@ -7,6 +7,7 @@ using DAL;
 using DAL.Entities.Identity;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowViteFrame", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5281", "https://localhost:5281")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -133,6 +134,12 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 
+//builder.Services.Configure<FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 5L * 1024 * 1024 * 1024; // 5 GB
+//    options.MultipartHeadersLengthLimit = int.MaxValue;
+//});
+
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -141,19 +148,21 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IMoviesService, MoviesService>();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = long.MaxValue;
+});
+
 var app = builder.Build();
 
-app.MapOpenApi();
+app.UseRouting();
 
-
-app.MapControllers();
-
-app.UseSwaggerUI(options =>
-{
-    options.RoutePrefix = "swagger";
-    options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
-    options.OAuthUsePkce();
-});
+app.UseCors("AllowViteFrame");
 
 var dir = builder.Configuration["ImagesDir"];
 var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
@@ -174,8 +183,18 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(videosPath),
     RequestPath = $"/{videosDir}"
 });
-app.UseCors("AllowAll");
+
+app.UseSwaggerUI(options =>
+{
+    options.RoutePrefix = "swagger";
+    options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+    options.OAuthUsePkce();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapOpenApi();
+app.MapControllers();
 
 app.Run();
