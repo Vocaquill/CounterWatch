@@ -129,7 +129,7 @@ public class GenreService(AppDbContext context,
         {
             var json = await File.ReadAllTextAsync(jsonPath);
 
-            var items = JsonConvert.DeserializeObject<List<GenreSeeder>>(json);
+            var items = JsonConvert.DeserializeObject<List<GenreSeederModel>>(json);
             if (items == null || items.Count == 0)
                 return;
 
