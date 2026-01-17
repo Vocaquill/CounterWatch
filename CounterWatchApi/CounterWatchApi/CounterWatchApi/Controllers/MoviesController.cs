@@ -1,5 +1,7 @@
+using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Movie;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CounterWatchApi.Controllers
@@ -9,6 +11,7 @@ namespace CounterWatchApi.Controllers
     public class MoviesController(IMoviesService moviesService) : ControllerBase
     {
         [HttpGet("Search")]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchMovies([FromQuery] MovieSearchModel model)
         {
             var result = await moviesService.SearchMoviesAsync(model);
@@ -16,6 +19,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpGet("BySlug")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetMovieBySlug([FromQuery] MovieGetBySlugModel model)
         {
             var result = await moviesService.GetMovieBySlugAsync(model);
@@ -23,6 +27,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateMovie([FromForm] MovieCreateModel model)
         {
@@ -31,6 +36,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> EditMovie([FromForm] MovieEditModel model)
         {
@@ -39,6 +45,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteMovie([FromBody] MovieDeleteModel model)
         {
             await moviesService.DeleteMovieAsync(model);
@@ -46,6 +53,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost("React")]
+        [Authorize]
         public async Task<IActionResult> ReactMovie([FromBody] MovieReactionModel model)
         {
             await moviesService.ReactMovieAsync(model);
@@ -53,6 +61,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost("AddComment")]
+        [Authorize]
         public async Task<IActionResult> AddComment([FromBody] MovieCommentCreateModel model)
         {
             await moviesService.AddCommentAsync(model);

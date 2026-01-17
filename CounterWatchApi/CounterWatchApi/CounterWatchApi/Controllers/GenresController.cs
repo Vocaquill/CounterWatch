@@ -1,5 +1,7 @@
+using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Genre;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CounterWatchApi.Controllers
@@ -9,6 +11,7 @@ namespace CounterWatchApi.Controllers
     public class GenresController(IGenresService genresService) : ControllerBase
     {
         [HttpGet("Search")]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchGenres([FromQuery] GenreSearchModel model)
         {
             var result = await genresService.SearchGenreAsync(model);
@@ -16,6 +19,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpGet("BySlug")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetGenreBySlug([FromQuery] GenreGetBySlugModel model)
         {
             var result = await genresService.GetGenreBySlugAsync(model);
@@ -23,6 +27,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateGenre([FromForm] GenreCreateModel model)
         {
@@ -31,6 +36,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> EditGenre([FromForm] GenreEditModel model)
         {
@@ -39,6 +45,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteGenre([FromBody] GenreDeleteModel model)
         {
             await genresService.DeleteGenreAsync(model);
