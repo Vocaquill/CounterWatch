@@ -88,6 +88,7 @@ function Header({ isOpen, toggleSidebar }: HeaderProps) {
         </button>
 
         <button
+          onClick={() => navigate('/login')}
           className="group flex items-center gap-2 p-1 pr-3 hover:bg-zinc-900 rounded-2xl transition-all border border-transparent hover:border-zinc-800"
         >
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-white shadow-lg shadow-red-900/20 group-hover:scale-105 transition-transform">

@@ -174,7 +174,7 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(videosPath),
     RequestPath = $"/{videosDir}"
 });
-
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

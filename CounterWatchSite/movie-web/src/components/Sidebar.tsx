@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 // Якщо використовуєте іконки (наприклад, lucide-react)
-import { Home, Film, Star } from 'lucide-react';
+import { Home, Film, Star, Anvil } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,6 +9,7 @@ interface SidebarProps {
 function Sidebar({ isOpen }: SidebarProps) {
   const menuItems = [
     { name: 'Home', path: '/', icon: <Home size={20} /> },
+    { name: 'Catalog', path: '/catalog', icon: <Anvil size={20} /> },
     { name: 'Movies', path: '/movies', icon: <Film size={20} /> },
     { name: 'Favorites', path: '/favorites', icon: <Star size={20} /> },
   ];
