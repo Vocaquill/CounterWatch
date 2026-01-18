@@ -1,0 +1,44 @@
+version: "3.9"
+
+networks:
+  counterwatch_net:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:17
+    container_name: counterwatch-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: counterwatch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - /data/counterwatch/postgres:/var/lib/postgresql/data
+    networks:
+      - counterwatch_net
+
+  api:
+    image: pedro007salo/counterwatch-api:latest
+    container_name: counterwatch-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
+    ports:
+      - "8080:8080"   # відкритий порт для API назовні
+    depends_on:
+      - db
+    networks:
+      - counterwatch_net
+
+  web:
+    image: pedro007salo/counterwatch-web:latest
+    container_name: counterwatch-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - counterwatch_net

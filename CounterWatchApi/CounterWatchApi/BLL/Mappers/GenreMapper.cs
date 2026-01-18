@@ -18,7 +18,7 @@ public class GenreMapper : Profile
             .ForMember(x => x.Image, opt => opt.Ignore())
             .ForMember(x => x.Id, opt => opt.Ignore());
 
-        CreateMap<GenreSeeder, GenreEntity>()
+        CreateMap<GenreSeederModel, GenreEntity>()
             .ForMember(x => x.Image, opt => opt.Ignore())
             .ForMember(x => x.Id, opt => opt.Ignore())
             .ForMember(x => x.IsDeleted, opt => opt.MapFrom(_ => false));

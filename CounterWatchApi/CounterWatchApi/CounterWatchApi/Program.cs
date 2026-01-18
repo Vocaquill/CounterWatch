@@ -4,14 +4,31 @@ using BLL.Services;
 using CounterWatchApi.Filters;
 using CounterWatchApi.Jobs;
 using DAL;
+using DAL.Entities.Identity;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Quartz;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteFrame", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5281", "https://localhost:5281")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -59,7 +76,38 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddIdentityConfiguration();
+builder.Services
+    .AddIdentity<UserEntity, RoleEntity>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+});
 
 builder.Services.AddControllers(options =>
 {
@@ -86,22 +134,55 @@ builder.Services.AddQuartzHostedService(options =>
     options.WaitForJobsToComplete = true;
 });
 
+//builder.Services.Configure<FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 5L * 1024 * 1024 * 1024; // 5 GB
+//    options.MultipartHeadersLengthLimit = int.MaxValue;
+//});
+
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IMoviesService, MoviesService>();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = long.MaxValue;
+});
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseRouting();
+
+app.UseCors("AllowViteFrame");
+
+var dir = builder.Configuration["ImagesDir"];
+var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
+Directory.CreateDirectory(path);
+
+app.UseStaticFiles(new StaticFileOptions
 {
-    app.MapOpenApi();
-}
+    FileProvider = new PhysicalFileProvider(path),
+    RequestPath = $"/{dir}"
+});
 
-app.UseAuthorization();
+var videosDir = builder.Configuration["VideosDir"];
+var videosPath = Path.Combine(Directory.GetCurrentDirectory(), videosDir);
+Directory.CreateDirectory(videosPath);
 
-app.MapControllers();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(videosPath),
+    RequestPath = $"/{videosDir}"
+});
 
 app.UseSwaggerUI(options =>
 {
@@ -110,19 +191,10 @@ app.UseSwaggerUI(options =>
     options.OAuthUsePkce();
 });
 
-var dir = builder.Configuration["ImagesDir"];
-var path = Path.Combine(Directory.GetCurrentDirectory(), dir);
-Directory.CreateDirectory(path);
-
-app.UseHttpsRedirection();
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(path),
-    RequestPath = $"/{dir}"
-});
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapOpenApi();
+app.MapControllers();
 
 app.Run();
