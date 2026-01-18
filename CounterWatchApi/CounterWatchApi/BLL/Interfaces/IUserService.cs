@@ -10,4 +10,5 @@ public interface IUserService
     Task<UserItemModel> GetUserById(int id);
     Task DeleteUser(int id);
     Task<UserItemModel> EditUserAsync(UserEditModel model);
+    Task SeedUsersAsync(string jsonPath);
 }

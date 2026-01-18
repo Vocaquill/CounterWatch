@@ -4,12 +4,15 @@ using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Account;
 using BLL.Models.Search;
+using BLL.Models.Seeder;
 using BLL.Models.User;
 using DAL;
+using DAL.Entities.Genre;
 using DAL.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace BLL.Services;
@@ -167,6 +170,58 @@ public class UserService(UserManager<UserEntity> userManager,
         if (user != null)
         {
             await userManager.DeleteAsync(user);
+        }
+    }
+
+    public async Task SeedUsersAsync(string jsonPath)
+    {
+        if (!File.Exists(jsonPath))
+        {
+            Console.WriteLine($"Users seed file not found: {jsonPath}");
+            return;
+        }
+
+        if (await context.Users.AnyAsync())
+            return;
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(jsonPath);
+
+            var users = JsonConvert.DeserializeObject<List<UserSeederModel>>(json);
+            if (users == null || users.Count == 0)
+                return;
+
+            foreach(var user in users)
+            {
+                var entity = mapper.Map<UserEntity>(user);
+                entity.Image = await imageService.SaveImageFromUrlAsync(user.ImagePath);
+                var result = await userManager.CreateAsync(entity, user.Password);
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine("Error Create User {0}", user.Email);
+                    continue;
+                }
+                foreach (var role in user.Roles)
+                {
+                    if (await roleManager.RoleExistsAsync(role))
+                    {
+                        await userManager.AddToRoleAsync(entity, role);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not Found Role {0}", role);
+                    }
+                }
+            }
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON parse error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Seed users error: {ex.Message}");
         }
     }
 }
