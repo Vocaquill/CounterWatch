@@ -33,20 +33,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="genres" element={<GenresPage />} />
       </Route>
-
-
-
     </Routes >
   )
 }
-//         <Route index element={<AdminDashboard />} />
-//
-//<Route index element={<Dashboard />} />
-//<Route path="movies" element={<MoviesList />} />
-//<Route path="add" element={<AddMovie />} />
-//
-//
-//
-//
-//
 export default App
