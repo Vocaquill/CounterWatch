@@ -39,6 +39,7 @@ public class UserController(IUserService userService) : Controller
     }
 
     [HttpPut]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> EditUser([FromForm] UserEditModel model)
     {
         var res = await userService.EditUserAsync(model);
