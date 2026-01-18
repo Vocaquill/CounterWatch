@@ -7,7 +7,7 @@ public class MovieCreateModel
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Description { get; set; }
-    public List<long> GenreIds { get; set; } = new();
+    public long[]? GenreIds { get; set; }
     public string ReleaseDate { get; set; } = string.Empty;
     public string? ImdbRating { get; set; }
     public IFormFile? Image { get; set; }

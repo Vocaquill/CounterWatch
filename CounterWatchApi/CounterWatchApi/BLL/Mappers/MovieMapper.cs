@@ -23,10 +23,9 @@ public class MovieMapper : Profile
         CreateMap<MovieCreateModel, MovieEntity>()
             .ForMember(x => x.ReleaseDate,
                 opt => opt.MapFrom(x =>
-                    DateTime.ParseExact(
-                        x.ReleaseDate,
-                        "yyyy-MM-dd",
-                        CultureInfo.InvariantCulture)))
+                    DateTime.SpecifyKind(
+                        DateTime.ParseExact(x.ReleaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        DateTimeKind.Utc)))
             .ForMember(x => x.ImdbRating,
                 opt => opt.MapFrom(x =>
                     string.IsNullOrWhiteSpace(x.ImdbRating)
@@ -53,5 +52,13 @@ public class MovieMapper : Profile
             .ForMember(x => x.Image, opt => opt.Ignore())
             .ForMember(x => x.Video, opt => opt.Ignore())
             .ForMember(x => x.Id, opt => opt.Ignore());
+
+        CreateMap<CommentEntity, MovieCommentItemModel>()
+            .ForMember(x => x.UserName,
+                opt => opt.MapFrom(x => x.User.UserName));
+
+        CreateMap<MovieReactionModel, MovieReactionEntity>()
+            .ForMember(x => x.Id, opt => opt.Ignore())
+            .ForMember(x => x.UserId, opt => opt.Ignore());
     }
 }

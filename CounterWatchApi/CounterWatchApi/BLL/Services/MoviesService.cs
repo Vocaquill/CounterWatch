@@ -209,7 +209,7 @@ public class MoviesService(
 
         if (!movieExists)
             throw new Exception("Movie not found");
-
+            
         var comment = new CommentEntity
         {
             MovieId = model.MovieId,

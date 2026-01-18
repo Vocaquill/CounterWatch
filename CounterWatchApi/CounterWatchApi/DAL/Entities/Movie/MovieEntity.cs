@@ -33,7 +33,7 @@ public class MovieEntity : BaseEntity<long>
     [Column(TypeName = "decimal(3,1)")]
     public decimal? ImdbRating { get; set; }
 
-    public virtual ICollection<MovieGenreEntity>? MovieGenres { get; set; }
+    public virtual ICollection<MovieGenreEntity>? MovieGenres { get; set; } = new List<MovieGenreEntity>();
 
     public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
     public ICollection<MovieReactionEntity> Reactions { get; set; } = new List<MovieReactionEntity>();
