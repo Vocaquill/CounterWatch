@@ -9,9 +9,10 @@ export const apiMovies = createApi({
     tagTypes: ['Movies', "Movie"],
     endpoints: (builder) => ({
         searchMovies: builder.query<IPagedResult<IMovieItem>, IMovieSearch>({
-            query: () => ({
+            query: (params) => ({
                 url: 'Search',
-                method: 'GET'
+                method: 'GET',
+                params
             }),
             providesTags: ['Movies']
         }),
