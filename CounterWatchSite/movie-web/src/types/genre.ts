@@ -15,3 +15,10 @@ export interface GenresState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
+
+export interface IGenreItem {
+  id: number;
+  slug: string;
+  image?: string;
+  name: string;
+}
