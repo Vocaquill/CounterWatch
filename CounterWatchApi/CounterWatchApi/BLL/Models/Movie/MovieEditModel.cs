@@ -7,10 +7,11 @@ public class MovieEditModel
     public long Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
-    public long GenreId { get; set; }
+    public string? Description { get; set; }
+    public List<long> GenreIds { get; set; } = new();
+    public string ReleaseDate { get; set; } = string.Empty;
+    public string? ImdbRating { get; set; }
     public IFormFile? Image { get; set; }
     public IFormFile? Video { get; set; }
     public string? TrailerUrl { get; set; }
-    public decimal? ImdbRating { get; set; }
-    public DateTime ReleaseDate { get; set; }
 }
