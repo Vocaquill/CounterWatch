@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { MovieCard } from '../components/MovieCard'; // Твій компонент
+import { MovieCard } from '../components/movie/MovieCard.tsx'; // Твій компонент
 import PageTransition from '../components/PageTransition';
 
 const GENRES = ["Усі", "Екшн", "Драма", "Комедія", "Фантастика", "Жахи", "Трилер"];

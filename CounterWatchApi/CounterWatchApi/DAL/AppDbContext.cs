@@ -34,6 +34,21 @@ public class AppDbContext :
                 .IsRequired();
         });
 
+        builder.Entity<MovieGenreEntity>(mg =>
+        {
+            mg.HasKey(x => new { x.MovieId, x.GenreId });
+
+            mg.HasOne(x => x.Movie)
+                .WithMany(m => m.MovieGenres)
+                .HasForeignKey(x => x.MovieId)
+                .IsRequired();
+
+            mg.HasOne(x => x.Genre)
+                .WithMany(g => g.MovieGenres)
+                .HasForeignKey(x => x.GenreId)
+                .IsRequired();
+        });
+
         builder.Entity<UserLoginEntity>(b =>
         {
             b.HasOne(l => l.User)
