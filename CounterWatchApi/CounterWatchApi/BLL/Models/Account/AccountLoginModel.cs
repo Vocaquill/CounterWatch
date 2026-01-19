@@ -9,14 +9,14 @@ public class AccountLoginModel
     /// Email користувача
     /// </summary>
     /// <example>
-    /// tymchuksasho724@gmail.com
+    /// admin@example.com
     /// </example>
     public string Email { get; set; } = string.Empty;
     /// <summary>
     /// Пароль користувача
     /// </summary>
     /// <example>
-    /// Qwerty123!
+    /// Admin123!
     /// </example>
     public string Password { get; set; } = string.Empty;
 }

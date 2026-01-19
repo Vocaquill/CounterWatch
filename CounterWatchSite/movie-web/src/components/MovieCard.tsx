@@ -51,7 +51,6 @@ export function MovieCard({ movie, onClick, compact = false }: MovieCardProps) {
              group-hover:scale-110 group-hover:opacity-50"
           />
 
-          {/* Play overlay */}
           <div className="absolute inset-0 flex items-center justify-center
                         opacity-0 group-hover:opacity-100
                         transition-all duration-300 bg-black/20">
@@ -63,7 +62,6 @@ export function MovieCard({ movie, onClick, compact = false }: MovieCardProps) {
             </div>
           </div>
 
-          {/* Rating */}
           {movie.imdbRating && (
               <div className="absolute top-4 right-4 px-2.5 py-1.5 bg-black/80 backdrop-blur-xl
                           rounded-xl flex items-center gap-1.5
@@ -76,7 +74,6 @@ export function MovieCard({ movie, onClick, compact = false }: MovieCardProps) {
           )}
         </div>
 
-        {/* Info */}
         <div className="px-2">
           <h3
               className={`font-black uppercase italic text-white transition-colors truncate

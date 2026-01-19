@@ -21,7 +21,7 @@ function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<UserHomePage />} />
-        <Route path="/movie/:id" element={<MoviePage />} />
+        <Route path="/movie/:slug" element={<MoviePage />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

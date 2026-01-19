@@ -18,11 +18,12 @@ export const apiMovies = createApi({
         }),
 
         getBySlug: builder.query<IMovieItem, IMovieGetBySlug>({
-            query: (slug) => ({
-                url: `BySlug/${slug}`,
-                method: 'GET'
+            query: ({ slug }) => ({
+                url: 'BySlug',
+                method: 'GET',
+                params: { slug }
             }),
-        })
+        }),
     })
 });
 
