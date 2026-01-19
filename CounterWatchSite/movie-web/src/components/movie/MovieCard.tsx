@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, Star } from 'lucide-react';
 
-import type { IMovieItem } from '../types/movie';
-import {APP_ENV} from "../env";
+import type { IMovieItem } from '../../types/movie.ts';
+import {APP_ENV} from "../../env";
 
 interface MovieCardProps {
   movie: IMovieItem;

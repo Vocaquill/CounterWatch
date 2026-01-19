@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { MovieCard } from '../components/MovieCard';
+import { MovieCard } from '../components/movie/MovieCard.tsx';
 
 import { useSearchMoviesQuery } from '../services/api/apiMovies';
 import type { IMovieSearch } from '../types/movie';
-import {MovieSearchFilters} from "../components/MovieSearchFilters.tsx";
+import {MovieSearchFilters} from "../components/movie/MovieSearchFilters.tsx";
 import {Pagination} from "../components/Pagination.tsx";
 
 function UserHomePage() {

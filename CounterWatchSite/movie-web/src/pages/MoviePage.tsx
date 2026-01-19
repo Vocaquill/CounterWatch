@@ -10,7 +10,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toYoutubeEmbed } from '../utils/toYoutubeEmbed.ts';
 import PageTransition from '../components/PageTransition';
 import { useGetBySlugQuery } from '../services/api/apiMovies';
-import {MoviePlayer} from "../components/MoviePlayer.tsx";
+import {MoviePlayer} from "../components/movie/MoviePlayer.tsx";
 import {APP_ENV} from "../env";
 
 function MoviePage() {

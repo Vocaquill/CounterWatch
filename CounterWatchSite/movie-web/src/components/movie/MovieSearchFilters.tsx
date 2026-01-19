@@ -1,7 +1,7 @@
 import {GenreSelect} from "./GenreSelect.tsx";
 import { ImdbSlider } from "./ImdbSlider.tsx";
 import { YearRange } from "./YearRange.tsx";
-import type {IMovieSearch} from "../types/movie.ts";
+import type {IMovieSearch} from "../../types/movie.ts";
 
 interface Props {
     searchParams: IMovieSearch;
