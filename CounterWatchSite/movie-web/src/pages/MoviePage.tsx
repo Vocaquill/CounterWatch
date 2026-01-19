@@ -12,6 +12,7 @@ import PageTransition from '../components/PageTransition';
 import { useGetBySlugQuery } from '../services/api/apiMovies';
 import {MoviePlayer} from "../components/movie/MoviePlayer.tsx";
 import {APP_ENV} from "../env";
+import {MovieComments} from "../components/movie/MovieComments.tsx";
 
 function MoviePage() {
   const navigate = useNavigate();
@@ -126,6 +127,11 @@ function MoviePage() {
                     </p>
                   </div>
               )}
+
+              <MovieComments
+                  movieId={movie.id}
+                  comments={movie.comments}
+              />
             </div>
 
             <div className="space-y-8">

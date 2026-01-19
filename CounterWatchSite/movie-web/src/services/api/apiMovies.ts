@@ -1,7 +1,7 @@
 import {createApi} from "@reduxjs/toolkit/query/react";
 import {createBaseQuery} from "../../utils/createBaseQuery.ts";
 import type {IPagedResult} from "../../types/aditional.ts";
-import type {IMovieGetBySlug, IMovieItem, IMovieSearch} from "../../types/movie.ts";
+import type {IMovieCommentCreate, IMovieGetBySlug, IMovieItem, IMovieSearch} from "../../types/movie.ts";
 
 export const apiMovies = createApi({
     reducerPath: 'api/movies',
@@ -24,10 +24,19 @@ export const apiMovies = createApi({
                 params: { slug }
             }),
         }),
+        addComment: builder.mutation<void, IMovieCommentCreate>({
+            query: (body) => ({
+                url: 'AddComment',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Movie'],
+        }),
     })
 });
 
 export const {
     useSearchMoviesQuery,
     useGetBySlugQuery,
+    useAddCommentMutation,
 } = apiMovies;
