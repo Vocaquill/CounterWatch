@@ -38,7 +38,7 @@ function App() {
         <Route path="movies">
             <Route index element={<AdminMoviesPage />} />
             <Route path="add" element={<CreateMoviePage />} />
-            <Route path="edit" element={<EditMoviePage />} />
+            <Route path="edit/:slug" element={<EditMoviePage />} />
         </Route>
       </Route>
     </Routes >

@@ -62,7 +62,7 @@ function AdminMoviesPage() {
                                 <td className="p-4 font-mono text-zinc-400">{movie.slug}</td>
                                 <td className="p-4 text-zinc-400">{new Date(movie.releaseDate).toLocaleDateString('uk-UA')}</td>
                                 <td className="p-4 text-right flex justify-end gap-2">
-                                    <button onClick={() => navigate(`/admin/movies/edit/${movie.id}`)} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white">
+                                    <button onClick={() => navigate(`/admin/movies/edit/${movie.slug}`)} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white">
                                         <Edit2 size={16} />
                                     </button>
                                     <button onClick={() => { setMovieToDelete({ id: movie.id, title: movie.title }); setIsDeleteModalOpen(true); }} className="p-2 hover:bg-red-950/30 rounded-lg text-zinc-500 hover:text-red-500">
