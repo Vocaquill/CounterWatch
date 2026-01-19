@@ -5,6 +5,7 @@ using BLL.Models.Search;
 using BLL.Models.User;
 using BLL.Services;
 using DAL.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ namespace CounterWatchApi.Controllers;
 public class UserController(IUserService userService) : Controller
 {
     [HttpGet]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> GetAllUsers()
     {
         var model = await userService.GetAllUsersAsync();
@@ -24,6 +26,7 @@ public class UserController(IUserService userService) : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> SearchUsers([FromBody] UserSearchModel model)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -39,6 +42,7 @@ public class UserController(IUserService userService) : Controller
     }
 
     [HttpPut]
+    [Authorize(Roles = Roles.Admin)]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> EditUser([FromForm] UserEditModel model)
     {
@@ -47,6 +51,7 @@ public class UserController(IUserService userService) : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> GetUserById(int id)
     {
         var user = await userService.GetUserById(id);
@@ -58,6 +63,7 @@ public class UserController(IUserService userService) : Controller
     }
 
     [HttpDelete]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> DeleteUser([FromBody] UserDeleteModel model)
     {
         await userService.DeleteUser(model.Id);
