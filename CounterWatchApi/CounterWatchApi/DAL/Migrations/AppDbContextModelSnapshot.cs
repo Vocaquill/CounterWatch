@@ -115,6 +115,9 @@ namespace DAL.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 

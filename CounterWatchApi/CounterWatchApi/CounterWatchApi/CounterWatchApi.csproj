@@ -30,8 +30,4 @@
     <ProjectReference Include="..\BLL\BLL.csproj" />
   </ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Helpers\JsonData\" />
-	</ItemGroup>
-
 </Project>

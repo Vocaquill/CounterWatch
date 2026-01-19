@@ -19,6 +19,7 @@ public class DbSeeder(IServiceProvider serviceProvider) : IDbSeeder
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var genresService = scope.ServiceProvider.GetRequiredService<IGenresService>();
+        var usersService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleEntity>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserEntity>>();
@@ -41,5 +42,9 @@ public class DbSeeder(IServiceProvider serviceProvider) : IDbSeeder
                 }
             }
         }
+
+        await usersService.SeedUsersAsync(
+            Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Users.json")
+        );
     }
 }

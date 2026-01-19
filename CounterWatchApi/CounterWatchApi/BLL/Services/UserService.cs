@@ -4,12 +4,15 @@ using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Account;
 using BLL.Models.Search;
+using BLL.Models.Seeder;
 using BLL.Models.User;
 using DAL;
+using DAL.Entities.Genre;
 using DAL.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace BLL.Services;
@@ -23,6 +26,7 @@ public class UserService(UserManager<UserEntity> userManager,
     public async Task<List<UserItemModel>> GetAllUsersAsync()
     {
         var users = await userManager.Users
+            .Where(x => !x.IsDeleted)
             .ProjectTo<UserItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
 
@@ -33,7 +37,7 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<SearchResult<UserItemModel>> SearchUsersAsync(UserSearchModel model)
     {
-        var query = userManager.Users.AsQueryable();
+        var query = userManager.Users.Where(x => !x.IsDeleted).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(model.Name))
         {
@@ -72,8 +76,6 @@ public class UserService(UserManager<UserEntity> userManager,
             .Take(safeItemsPerPage)
             .ProjectTo<UserItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
-
-        //await LoadLoginsAndRolesAsync(users);
 
         return new SearchResult<UserItemModel>
         {
@@ -119,8 +121,7 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> EditUserAsync(UserEditModel model)
     {
-        var existing = await userManager.FindByIdAsync(model.Id.ToString());
-        //existing = mapper.Map(model, existing);
+        var existing = await context.Users.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
         existing.Email = model.Email;
         existing.FirstName = model.FirstName;
@@ -148,7 +149,7 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> GetUserById(int id)
     {
-        var user = await userManager.FindByIdAsync(id.ToString());
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
         if (user == null)
             return null;
@@ -162,11 +163,64 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task DeleteUser(int id)
     {
-        var user = await userManager.FindByIdAsync(id.ToString());
-
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (user != null)
         {
-            await userManager.DeleteAsync(user);
+            user.IsDeleted = true;
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public async Task SeedUsersAsync(string jsonPath)
+    {
+        if (!File.Exists(jsonPath))
+        {
+            Console.WriteLine($"Users seed file not found: {jsonPath}");
+            return;
+        }
+
+        if (await context.Users.AnyAsync())
+            return;
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(jsonPath);
+
+            var users = JsonConvert.DeserializeObject<List<UserSeederModel>>(json);
+            if (users == null || users.Count == 0)
+                return;
+
+            foreach(var user in users)
+            {
+                var entity = mapper.Map<UserEntity>(user);
+                entity.Image = await imageService.SaveImageFromUrlAsync(user.ImagePath);
+                var result = await userManager.CreateAsync(entity, user.Password);
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine("Error Create User {0}", user.Email);
+                    continue;
+                }
+                foreach (var role in user.Roles)
+                {
+                    if (await roleManager.RoleExistsAsync(role))
+                    {
+                        await userManager.AddToRoleAsync(entity, role);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not Found Role {0}", role);
+                    }
+                }
+            }
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON parse error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Seed users error: {ex.Message}");
         }
     }
 }
