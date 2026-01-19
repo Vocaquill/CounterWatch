@@ -9,10 +9,11 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { toYoutubeEmbed } from '../utils/toYoutubeEmbed.ts';
 import PageTransition from '../components/PageTransition';
-import { useGetBySlugQuery } from '../services/api/apiMovies';
-import {MoviePlayer} from "../components/movie/MoviePlayer.tsx";
-import {APP_ENV} from "../env";
-import {MovieComments} from "../components/movie/MovieComments.tsx";
+import { useGetBySlugQuery, useReactMovieMutation } from '../services/api/apiMovies';
+import { MoviePlayer } from "../components/movie/MoviePlayer.tsx";
+import { APP_ENV } from "../env";
+import { MovieComments } from "../components/movie/MovieComments.tsx";
+import { useState } from "react";
 
 function MoviePage() {
   const navigate = useNavigate();
@@ -22,6 +23,11 @@ function MoviePage() {
       { slug: slug! },
       { skip: !slug }
   );
+
+  const [reactMovie] = useReactMovieMutation();
+
+  const [likesCount, setLikesCount] = useState(movie?.likesCount ?? 0);
+  const [dislikesCount, setDislikesCount] = useState(movie?.dislikesCount ?? 0);
 
   if (isLoading) {
     return (
@@ -35,10 +41,23 @@ function MoviePage() {
 
   const releaseYear = new Date(movie.releaseDate).getFullYear();
 
+  const handleReaction = async (isLike: boolean) => {
+    try {
+      await reactMovie({ movieId: movie.id, isLike }).unwrap();
+
+      // Миттєво оновлюємо UI
+      if (isLike) setLikesCount((prev) => prev + 1);
+      else setDislikesCount((prev) => prev + 1);
+    } catch (error) {
+      console.error('Помилка при відправці реакції', error);
+    }
+  };
+
   return (
       <PageTransition>
         <div className="min-h-screen bg-zinc-950 text-white pb-20">
 
+          {/* Блок з банером */}
           <div className="relative h-[60vh] overflow-hidden">
             <img
                 src={
@@ -85,9 +104,7 @@ function MoviePage() {
                   {movie.imdbRating && (
                       <div className="flex items-center gap-1 text-yellow-500">
                         <Star size={16} fill="currentColor" />
-                        <span className="text-white font-bold">
-                      {movie.imdbRating}
-                    </span>
+                        <span className="text-white font-bold">{movie.imdbRating}</span>
                       </div>
                   )}
 
@@ -97,20 +114,26 @@ function MoviePage() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1">
-                    <ThumbsUp size={14} /> {movie.likesCount}
-                  </span>
-                    <span className="flex items-center gap-1">
-                    <ThumbsDown size={14} /> {movie.dislikesCount}
-                  </span>
+                    <button
+                        onClick={() => handleReaction(true)}
+                        className="flex items-center gap-1 hover:text-green-400 transition-colors"
+                    >
+                      <ThumbsUp size={14} /> {likesCount}
+                    </button>
+                    <button
+                        onClick={() => handleReaction(false)}
+                        className="flex items-center gap-1 hover:text-red-400 transition-colors"
+                    >
+                      <ThumbsDown size={14} /> {dislikesCount}
+                    </button>
                   </div>
                 </div>
               </motion.div>
             </div>
           </div>
 
+          {/* Основний контент */}
           <div className="px-6 md:px-12 grid grid-cols-1 lg:grid-cols-3 gap-12 -mt-10 relative z-20">
-
             <div className="lg:col-span-2 space-y-10">
 
               {movie.video && (
@@ -128,20 +151,13 @@ function MoviePage() {
                   </div>
               )}
 
-              <MovieComments
-                  movieId={movie.id}
-                  comments={movie.comments}
-              />
+              <MovieComments movieId={movie.id} comments={movie.comments} />
             </div>
 
             <div className="space-y-8">
-
               {movie.trailerUrl && (
                   <div>
-                    <h3 className="font-bold uppercase text-sm mb-3">
-                      Трейлер
-                    </h3>
-
+                    <h3 className="font-bold uppercase text-sm mb-3">Трейлер</h3>
                     <div className="aspect-video rounded-2xl overflow-hidden border border-zinc-800">
                       <iframe
                           src={toYoutubeEmbed(movie.trailerUrl) ?? undefined}
