@@ -1,5 +1,7 @@
 
 // 1. Інтерфейс даних (клас)
+import type {IBaseSearch} from "./aditional.ts";
+
 export interface GenreMovieAdmin {
   id: number;
   name: string;
@@ -14,4 +16,17 @@ export interface GenresState {
   items: GenreMovieAdmin[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+}
+
+export interface IGenreItem {
+  id: number;
+  slug: string;
+  image?: string;
+  name: string;
+}
+
+export interface IGenreSearch extends IBaseSearch {
+  id?: number;
+  slug?: string;
+  name?: string;
 }

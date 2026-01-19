@@ -9,8 +9,7 @@ public class MovieSearchModel : BaseSearchParamsModel
 {
     public string? Title { get; set; }
     public long? GenreId { get; set; }
-    public int? ReleaseYearFrom { get; set; }
-    public int? ReleaseYearTo { get; set; }
-    public decimal? ImdbRatingFrom { get; set; }
-    public int? UserRatingPercentFrom { get; set; }
+    public string? ReleaseYearFrom { get; set; }
+    public string? ReleaseYearTo { get; set; }
+    public string? ImdbRatingFrom { get; set; }
 }
