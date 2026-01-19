@@ -1,11 +1,13 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetBySlugQuery, useEditMovieMutation } from '../../services/api/apiMovies.ts';
+import { useSearchGenresQuery } from '../../services/api/apiGenres.ts';
 import type { IMovieEdit } from '../../types/movie.ts';
+import type { IGenreItem } from '../../types/genre.ts';
 import { InputField } from '../../components/form/InputField.tsx';
 import { TextAreaField } from '../../components/form/TextAreaField.tsx';
-import { PrimaryButton } from '../../components/form/PrimaryButton.tsx';
 import { FileUploadField } from '../../components/form/FileUploadField.tsx';
+import { PrimaryButton } from '../../components/form/PrimaryButton.tsx';
 import { MoviePlayer } from '../../components/movie/MoviePlayer.tsx';
 import { APP_ENV } from '../../env/index.ts';
 
@@ -15,17 +17,14 @@ function EditMoviePage() {
 
     const { data: movie, isLoading } = useGetBySlugQuery({ slug: slug! });
     const [editMovie] = useEditMovieMutation();
+    const { data: genresData } = useSearchGenresQuery({ page: 1, itemPerPage: 100 });
 
     const [form, setForm] = useState<IMovieEdit | null>(null);
 
-    if (isLoading) {
-        return <div className="text-center text-white py-20">Завантаження...</div>;
-    }
+    if (isLoading) return <div className="text-center text-white py-20">Завантаження...</div>;
+    if (!movie) return <div className="text-center text-white py-20">Фільм не знайдено</div>;
 
-    if (!movie) {
-        return <div className="text-center text-white py-20">Фільм не знайдено</div>;
-    }
-
+    // Ініціалізація форми один раз
     if (!form) {
         setForm({
             id: movie.id,
@@ -37,18 +36,30 @@ function EditMoviePage() {
             trailerUrl: movie.trailerUrl || '',
             image: undefined,
             video: undefined,
+            genreIds: movie.genres?.map(g => g.id) || [],
         });
         return <div className="text-center text-white py-20">Завантаження форми...</div>;
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setForm(prev => (prev ? { ...prev, [name]: value } : prev));
+        setForm(prev => prev ? { ...prev, [name]: value } : prev);
     };
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, files } = e.target;
-        setForm(prev => (prev ? { ...prev, [name]: files?.[0] } : prev));
+        setForm(prev => prev ? { ...prev, [name]: files?.[0] } : prev);
+    };
+
+    const handleGenreToggle = (id: number) => {
+        setForm(prev => {
+            if (!prev) return prev;
+            const current = prev.genreIds || [];
+            return {
+                ...prev,
+                genreIds: current.includes(id) ? current.filter(g => g !== id) : [...current, id],
+            };
+        });
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -63,6 +74,7 @@ function EditMoviePage() {
             <h1 className="text-3xl font-black text-white mb-8">Редагувати фільм</h1>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 {/* Ліва колонка */}
                 <div className="space-y-4">
                     <InputField label="Назва" name="title" value={form.title} onChange={handleChange} required />
@@ -75,6 +87,27 @@ function EditMoviePage() {
                 {/* Права колонка */}
                 <div className="space-y-4">
                     <InputField label="Trailer URL" name="trailerUrl" value={form.trailerUrl} onChange={handleChange} />
+
+                    {/* Вибір жанрів */}
+                    <div>
+                        <label className="text-zinc-400 mb-1 font-semibold block">Жанри</label>
+                        <div className="flex flex-wrap gap-2">
+                            {genresData?.items.map((genre: IGenreItem) => (
+                                <button
+                                    key={genre.id}
+                                    type="button"
+                                    onClick={() => handleGenreToggle(genre.id)}
+                                    className={`px-3 py-1 rounded-xl border transition ${
+                                        form.genreIds?.includes(genre.id)
+                                            ? 'bg-red-600 border-red-600 text-white'
+                                            : 'bg-zinc-900 border-zinc-800 text-zinc-400'
+                                    }`}
+                                >
+                                    {genre.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     {/* Прев’ю картинки */}
                     <div className="space-y-2">
