@@ -26,6 +26,7 @@ public class UserService(UserManager<UserEntity> userManager,
     public async Task<List<UserItemModel>> GetAllUsersAsync()
     {
         var users = await userManager.Users
+            .Where(x => !x.IsDeleted)
             .ProjectTo<UserItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
 
@@ -36,7 +37,7 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<SearchResult<UserItemModel>> SearchUsersAsync(UserSearchModel model)
     {
-        var query = userManager.Users.AsQueryable();
+        var query = userManager.Users.Where(x => !x.IsDeleted).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(model.Name))
         {
@@ -122,8 +123,8 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> EditUserAsync(UserEditModel model)
     {
-        var existing = await userManager.FindByIdAsync(model.Id.ToString());
-        //existing = mapper.Map(model, existing);
+        //var existing = await userManager.FindByIdAsync(model.Id.ToString());
+        var existing = await context.Users.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
         existing.Email = model.Email;
         existing.FirstName = model.FirstName;
@@ -151,7 +152,8 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> GetUserById(int id)
     {
-        var user = await userManager.FindByIdAsync(id.ToString());
+        //var user = await userManager.FindByIdAsync(id.ToString());
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
         if (user == null)
             return null;
@@ -165,11 +167,12 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task DeleteUser(int id)
     {
-        var user = await userManager.FindByIdAsync(id.ToString());
-
+        var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (user != null)
         {
-            await userManager.DeleteAsync(user);
+            user.IsDeleted = true;
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
         }
     }
 

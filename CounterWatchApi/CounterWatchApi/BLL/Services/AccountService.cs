@@ -4,6 +4,7 @@ using BLL.Models.Account;
 using BLL.SMTP;
 using DAL.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -77,7 +78,8 @@ public class AccountService(IJwtTokenService tokenService,
     }
     public async Task<bool> ForgotPasswordAsync(AccountForgotPasswordModel model)
     {
-        var user = await userManager.FindByEmailAsync(model.Email);
+        //var user = await userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.Users.FirstOrDefaultAsync(x=> x.Email == model.Email && !x.IsDeleted);
 
         if (user == null)
         {
@@ -134,7 +136,8 @@ public class AccountService(IJwtTokenService tokenService,
 
     public async Task<bool> ValidateResetTokenAsync(AccountValidateResetTokenModel model)
     {
-        var user = await userManager.FindByEmailAsync(model.Email);
+        //var user = await userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
 
         return await userManager.VerifyUserTokenAsync(
             user,
@@ -145,7 +148,8 @@ public class AccountService(IJwtTokenService tokenService,
 
     public async Task ResetPasswordAsync(AccountResetPasswordModel model)
     {
-        var user = await userManager.FindByEmailAsync(model.Email);
+        //var user = await userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
 
         if (user != null)
             await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);

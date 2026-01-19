@@ -6,6 +6,7 @@ using DAL.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CounterWatchApi.Controllers
 {
@@ -20,7 +21,8 @@ namespace CounterWatchApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] AccountLoginModel model)
         {
-            var user = await userManager.FindByEmailAsync(model.Email);
+            //var user = await userManager.FindByEmailAsync(model.Email);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = await jwtTokenService.CreateTokenAsync(user);
