@@ -41,7 +41,6 @@ function AdminLayout() {
             </p>
             <div className="space-y-1">
               <AdminNavLink to="/admin/movies" icon={<Film size={20} />} label="Усі фільми" />
-              <AdminNavLink to="/admin/add" icon={<PlusCircle size={20} />} label="Додати фільм" />
               <AdminNavLink to="/admin/genres" icon={<Tag size={20} />} label="Жанри" />
             </div>
           </div>
