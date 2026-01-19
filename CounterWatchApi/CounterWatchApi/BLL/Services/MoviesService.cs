@@ -21,6 +21,14 @@ public class MoviesService(
     {
         var entity = mapper.Map<MovieEntity>(model);
 
+        foreach (var genreId in model.GenreIds.Distinct())
+        {
+            entity.MovieGenres.Add(new MovieGenreEntity
+            {
+                GenreId = genreId
+            });
+        }
+
         if (model.Image != null)
             entity.Image = await imageService.SaveImageAsync(model.Image);
 
@@ -39,24 +47,39 @@ public class MoviesService(
     public async Task<MovieItemModel> EditMovieAsync(MovieEditModel model)
     {
         var entity = await context.Movies
+            .Include(x => x.MovieGenres)
             .FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
         if (entity == null)
             throw new Exception("Movie not found");
 
-        if (entity.Image != null && model.Image != null)
-            await imageService.DeleteImageAsync(entity.Image);
-
-        if (entity.Video != null && model.Video != null)
-            await videoService.DeleteVideoAsync(entity.Video);
-
         mapper.Map(model, entity);
 
+        entity.MovieGenres.Clear();
+
+        foreach (var genreId in model.GenreIds.Distinct())
+        {
+            entity.MovieGenres.Add(new MovieGenreEntity
+            {
+                GenreId = genreId
+            });
+        }
+
         if (model.Image != null)
+        {
+            if (entity.Image != null)
+                await imageService.DeleteImageAsync(entity.Image);
+
             entity.Image = await imageService.SaveImageAsync(model.Image);
+        }
 
         if (model.Video != null)
+        {
+            if (entity.Video != null)
+                await videoService.DeleteVideoAsync(entity.Video);
+
             entity.Video = await videoService.SaveVideoAsync(model.Video);
+        }
 
         await context.SaveChangesAsync();
 
@@ -104,16 +127,25 @@ public class MoviesService(
         }
 
         if (model.GenreId.HasValue)
-            query = query.Where(x => x.GenreId == model.GenreId.Value);
+        {
+            query = query.Where(x =>
+                x.MovieGenres.Any(mg => mg.GenreId == model.GenreId));
+        }
 
-        if (model.ReleaseYearFrom.HasValue)
-            query = query.Where(x => x.ReleaseDate.Year >= model.ReleaseYearFrom.Value);
+        if (int.TryParse(model.ReleaseYearFrom, out int fromYear))
+        {
+            query = query.Where(x => x.ReleaseDate.Year >= fromYear);
+        }
 
-        if (model.ReleaseYearTo.HasValue)
-            query = query.Where(x => x.ReleaseDate.Year <= model.ReleaseYearTo.Value);
+        if (int.TryParse(model.ReleaseYearTo, out int toYear))
+        {
+            query = query.Where(x => x.ReleaseDate.Year <= toYear);
+        }
 
-        if (model.ImdbRatingFrom.HasValue)
-            query = query.Where(x => x.ImdbRating >= model.ImdbRatingFrom.Value);
+        if (decimal.TryParse(model.ImdbRatingFrom, out decimal ratingFrom))
+        {
+            query = query.Where(x => x.ImdbRating >= ratingFrom);
+        }
 
         int totalCount = await query.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)itemsPerPage);
@@ -177,7 +209,7 @@ public class MoviesService(
 
         if (!movieExists)
             throw new Exception("Movie not found");
-
+            
         var comment = new CommentEntity
         {
             MovieId = model.MovieId,

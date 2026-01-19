@@ -12,6 +12,9 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
 import AdminLayout from './layouts/AdminLayout.tsx'
 import GenresPage from './pages/Admin/GenresPage.tsx'
 import Dashboard from './pages/Admin/Dashboard.tsx'
+import AdminMoviesPage from "./pages/Admin/AdminMoviesPage.tsx";
+import CreateMoviePage from "./pages/Admin/CreateMoviePage.tsx";
+import EditMoviePage from "./pages/Admin/EditMoviePage.tsx";
 //For all 
 import AppLayout from './layouts/AppLayout.tsx'
 import SearchPage from './pages/SearchPage'
@@ -21,7 +24,7 @@ function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<UserHomePage />} />
-        <Route path="/movie/:id" element={<MoviePage />} />
+        <Route path="/movie/:slug" element={<MoviePage />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -32,21 +35,13 @@ function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="genres" element={<GenresPage />} />
+        <Route path="movies">
+            <Route index element={<AdminMoviesPage />} />
+            <Route path="add" element={<CreateMoviePage />} />
+            <Route path="edit/:slug" element={<EditMoviePage />} />
+        </Route>
       </Route>
-
-
-
     </Routes >
   )
 }
-//         <Route index element={<AdminDashboard />} />
-//
-//<Route index element={<Dashboard />} />
-//<Route path="movies" element={<MoviesList />} />
-//<Route path="add" element={<AddMovie />} />
-//
-//
-//
-//
-//
 export default App

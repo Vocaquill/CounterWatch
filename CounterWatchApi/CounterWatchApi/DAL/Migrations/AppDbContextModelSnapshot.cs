@@ -250,8 +250,10 @@ namespace DAL.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("GenreId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Image")
                         .HasMaxLength(255)
@@ -286,9 +288,22 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("tbl_movies");
+                });
+
+            modelBuilder.Entity("DAL.Entities.Movie.MovieGenreEntity", b =>
+                {
+                    b.Property<long>("MovieId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GenreId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("MovieId", "GenreId");
+
                     b.HasIndex("GenreId");
 
-                    b.ToTable("tbl_movies");
+                    b.ToTable("tbl_movie_genres");
                 });
 
             modelBuilder.Entity("DAL.Entities.Movie.MovieReactionEntity", b =>
@@ -439,15 +454,23 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DAL.Entities.Movie.MovieEntity", b =>
+            modelBuilder.Entity("DAL.Entities.Movie.MovieGenreEntity", b =>
                 {
                     b.HasOne("DAL.Entities.Genre.GenreEntity", "Genre")
-                        .WithMany()
+                        .WithMany("MovieGenres")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DAL.Entities.Movie.MovieEntity", "Movie")
+                        .WithMany("MovieGenres")
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Genre");
+
+                    b.Navigation("Movie");
                 });
 
             modelBuilder.Entity("DAL.Entities.Movie.MovieReactionEntity", b =>
@@ -496,6 +519,11 @@ namespace DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DAL.Entities.Genre.GenreEntity", b =>
+                {
+                    b.Navigation("MovieGenres");
+                });
+
             modelBuilder.Entity("DAL.Entities.Identity.RoleEntity", b =>
                 {
                     b.Navigation("UserRoles");
@@ -511,6 +539,8 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entities.Movie.MovieEntity", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("MovieGenres");
 
                     b.Navigation("Reactions");
                 });

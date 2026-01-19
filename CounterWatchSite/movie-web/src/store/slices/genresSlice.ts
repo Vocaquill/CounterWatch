@@ -2,8 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import type { GenreMovieAdmin, GenresState } from '../../types/genre';
+import {APP_ENV} from "../../env";
 
-const API_URL = 'https://localhost:5281/api/Genres';
+const API_URL =  `${APP_ENV.API_BASE_URL}/api/Genres`;
 
 const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
