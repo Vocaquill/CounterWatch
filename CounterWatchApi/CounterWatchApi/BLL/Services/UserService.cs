@@ -77,8 +77,6 @@ public class UserService(UserManager<UserEntity> userManager,
             .ProjectTo<UserItemModel>(mapper.ConfigurationProvider)
             .ToListAsync();
 
-        //await LoadLoginsAndRolesAsync(users);
-
         return new SearchResult<UserItemModel>
         {
             Items = users,
@@ -123,7 +121,6 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> EditUserAsync(UserEditModel model)
     {
-        //var existing = await userManager.FindByIdAsync(model.Id.ToString());
         var existing = await context.Users.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
         existing.Email = model.Email;
@@ -152,7 +149,6 @@ public class UserService(UserManager<UserEntity> userManager,
 
     public async Task<UserItemModel> GetUserById(int id)
     {
-        //var user = await userManager.FindByIdAsync(id.ToString());
         var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
         if (user == null)

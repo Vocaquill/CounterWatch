@@ -78,7 +78,6 @@ public class AccountService(IJwtTokenService tokenService,
     }
     public async Task<bool> ForgotPasswordAsync(AccountForgotPasswordModel model)
     {
-        //var user = await userManager.FindByEmailAsync(model.Email);
         var user = await userManager.Users.FirstOrDefaultAsync(x=> x.Email == model.Email && !x.IsDeleted);
 
         if (user == null)
@@ -136,7 +135,6 @@ public class AccountService(IJwtTokenService tokenService,
 
     public async Task<bool> ValidateResetTokenAsync(AccountValidateResetTokenModel model)
     {
-        //var user = await userManager.FindByEmailAsync(model.Email);
         var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
 
         return await userManager.VerifyUserTokenAsync(
@@ -148,7 +146,6 @@ public class AccountService(IJwtTokenService tokenService,
 
     public async Task ResetPasswordAsync(AccountResetPasswordModel model)
     {
-        //var user = await userManager.FindByEmailAsync(model.Email);
         var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
 
         if (user != null)
