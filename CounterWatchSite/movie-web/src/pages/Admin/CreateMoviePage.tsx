@@ -10,10 +10,11 @@ import { TextAreaField } from '../../components/form/TextAreaField';
 import { FileUploadField } from '../../components/form/FileUploadField';
 import { PrimaryButton } from '../../components/form/PrimaryButton';
 import {useFormServerErrors} from "../../utils/useFormServerErrors.ts";
+import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 
 export default function CreateMoviePage() {
     const navigate = useNavigate();
-    const [createMovie] = useCreateMovieMutation();
+    const [createMovie, {isLoading}] = useCreateMovieMutation();
     const { data: genresData } = useSearchGenresQuery({ page: 1, itemPerPage: 100 });
 
     const {
@@ -97,118 +98,122 @@ export default function CreateMoviePage() {
     };
 
     return (
-        <div className="p-6 bg-zinc-950 min-h-screen">
-            <h1 className="text-3xl font-black text-white mb-8">Створити фільм</h1>
+        <>
+            {isLoading && <LoadingOverlay />}
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-zinc-950 min-h-screen">
+                <h1 className="text-3xl font-black text-white mb-8">Створити фільм</h1>
 
-                <div className="space-y-4">
-                    <InputField
-                        label="Назва"
-                        name="title"
-                        value={form.title}
-                        onChange={handleChange}
-                        required
-                        error={errors.title}
-                    />
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    <InputField
-                        label="Slug"
-                        name="slug"
-                        value={form.slug}
-                        onChange={handleChange}
-                        required
-                        error={errors.slug}
-                    />
+                    <div className="space-y-4">
+                        <InputField
+                            label="Назва"
+                            name="title"
+                            value={form.title}
+                            onChange={handleChange}
+                            required
+                            error={errors.title}
+                        />
 
-                    <TextAreaField
-                        label="Опис"
-                        name="description"
-                        value={form.description}
-                        onChange={handleChange}
-                        error={errors.description}
-                    />
+                        <InputField
+                            label="Slug"
+                            name="slug"
+                            value={form.slug}
+                            onChange={handleChange}
+                            required
+                            error={errors.slug}
+                        />
 
-                    <InputField
-                        label="Дата релізу"
-                        name="releaseDate"
-                        type="date"
-                        value={form.releaseDate}
-                        onChange={handleChange}
-                        required
-                        error={errors.releaseDate}
-                    />
+                        <TextAreaField
+                            label="Опис"
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            error={errors.description}
+                        />
 
-                    <InputField
-                        label="IMDB"
-                        name="imdbRating"
-                        value={form.imdbRating}
-                        onChange={handleChange}
-                        error={errors.imdbRating}
-                    />
-                </div>
+                        <InputField
+                            label="Дата релізу"
+                            name="releaseDate"
+                            type="date"
+                            value={form.releaseDate}
+                            onChange={handleChange}
+                            required
+                            error={errors.releaseDate}
+                        />
 
-                <div className="space-y-4">
-                    <InputField
-                        label="Trailer URL"
-                        name="trailerUrl"
-                        value={form.trailerUrl}
-                        onChange={handleChange}
-                        error={errors.trailerUrl}
-                    />
-
-                    <div>
-                        <label className="text-zinc-400 mb-1 font-semibold block">
-                            Жанри
-                        </label>
-
-                        <div className="flex flex-wrap gap-2">
-                            {genresData?.items.map((genre: IGenreItem) => (
-                                <button
-                                    key={genre.id}
-                                    type="button"
-                                    onClick={() => handleGenreToggle(genre.id)}
-                                    className={`px-3 py-1 rounded-xl border transition ${
-                                        form.genreIds?.includes(genre.id)
-                                            ? 'bg-red-600 border-red-600 text-white'
-                                            : 'bg-zinc-900 border-zinc-800 text-zinc-400'
-                                    }`}
-                                >
-                                    {genre.name}
-                                </button>
-                            ))}
-                        </div>
-
-                        {errors.genreIds && (
-                            <span className="text-red-500 text-sm mt-1 block">
-                                {errors.genreIds[0]}
-                            </span>
-                        )}
+                        <InputField
+                            label="IMDB"
+                            name="imdbRating"
+                            value={form.imdbRating}
+                            onChange={handleChange}
+                            error={errors.imdbRating}
+                        />
                     </div>
 
-                    <FileUploadField
-                        label="Зображення"
-                        name="image"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        error={errors.image}
-                    />
+                    <div className="space-y-4">
+                        <InputField
+                            label="Trailer URL"
+                            name="trailerUrl"
+                            value={form.trailerUrl}
+                            onChange={handleChange}
+                            error={errors.trailerUrl}
+                        />
 
-                    <FileUploadField
-                        label="Відео"
-                        name="video"
-                        accept="video/*"
-                        onChange={handleFileChange}
-                        error={errors.video}
-                    />
-                </div>
+                        <div>
+                            <label className="text-zinc-400 mb-1 font-semibold block">
+                                Жанри
+                            </label>
 
-                <div className="col-span-2 flex justify-end mt-4">
-                    <PrimaryButton type="submit">
-                        Створити
-                    </PrimaryButton>
-                </div>
-            </form>
-        </div>
+                            <div className="flex flex-wrap gap-2">
+                                {genresData?.items.map((genre: IGenreItem) => (
+                                    <button
+                                        key={genre.id}
+                                        type="button"
+                                        onClick={() => handleGenreToggle(genre.id)}
+                                        className={`px-3 py-1 rounded-xl border transition ${
+                                            form.genreIds?.includes(genre.id)
+                                                ? 'bg-red-600 border-red-600 text-white'
+                                                : 'bg-zinc-900 border-zinc-800 text-zinc-400'
+                                        }`}
+                                    >
+                                        {genre.name}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {errors.genreIds && (
+                                <span className="text-red-500 text-sm mt-1 block">
+                                {errors.genreIds[0]}
+                            </span>
+                            )}
+                        </div>
+
+                        <FileUploadField
+                            label="Зображення"
+                            name="image"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            error={errors.image}
+                        />
+
+                        <FileUploadField
+                            label="Відео"
+                            name="video"
+                            accept="video/*"
+                            onChange={handleFileChange}
+                            error={errors.video}
+                        />
+                    </div>
+
+                    <div className="col-span-2 flex justify-end mt-4">
+                        <PrimaryButton type="submit">
+                            Створити
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </div>
+        </>
     );
 }
