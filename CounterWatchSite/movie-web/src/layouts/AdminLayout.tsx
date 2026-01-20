@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Film, PlusCircle, LogOut, Tag } from 'lucide-react';
+import { LayoutDashboard, Film, LogOut, Tag } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 
 function AdminLayout() {
