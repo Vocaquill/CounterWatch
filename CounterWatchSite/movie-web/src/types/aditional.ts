@@ -18,3 +18,7 @@ export interface IPagedResult<T> {
     itemsPerPage: number;
     totalPages: number;
 }
+
+export interface IServerValidationErrors {
+    [field: string]: string[];
+}
