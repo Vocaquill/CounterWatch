@@ -32,7 +32,7 @@ public class DbSeeder(IServiceProvider serviceProvider) : IDbSeeder
             Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Genres.json")
         );
 
-        await movieService.SeedMoviesAsync("/app/media/movies.json"); // усе на серваку
+        await movieService.SeedMoviesAsync("/app/media/Movies.json"); // усе на серваку
 
         if (!context.Roles.Any())
         {
