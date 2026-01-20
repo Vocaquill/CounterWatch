@@ -227,7 +227,10 @@ public class MoviesService(
     public async Task SeedMoviesAsync(string jsonPath)
     {
         if (!File.Exists(jsonPath))
+        {
+            Console.WriteLine($"[SEEDER] Movies.json not found at {jsonPath}");
             return;
+        }
 
         if (await context.Movies.AnyAsync())
             return;

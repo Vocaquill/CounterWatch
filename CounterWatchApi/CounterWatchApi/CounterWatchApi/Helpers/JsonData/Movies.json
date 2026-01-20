@@ -7,7 +7,7 @@
     "imdbRating": "6.7",
     "genres": [ 8, 2 ],
     "imageFile": "puss_in_boots_2.jpg",
-    "videoFile": "puss_in_boots_2.mkv"
+    "videoFile": "puss_in_boots_2.mp4"
   },
   {
     "title": "Тачки 1",
@@ -17,7 +17,7 @@
     "imdbRating": "7.1",
     "genres": [ 8, 2, 4 ],
     "imageFile": "cars_1.jpg",
-    "videoFile": "cars_1.mkv"
+    "videoFile": "cars_1.mp4"
   },
   {
     "title": "Як приборкати дракона 1",
@@ -27,7 +27,7 @@
     "imdbRating": "8.1",
     "genres": [ 8, 2 ],
     "imageFile": "httyd_1.jpg",
-    "videoFile": "httyd_1.mkv"
+    "videoFile": "httyd_1.mp4"
   },
   {
     "title": "Як приборкати дракона 2",
@@ -37,7 +37,7 @@
     "imdbRating": "7.8",
     "genres": [ 8, 2 ],
     "imageFile": "httyd_2.jpg",
-    "videoFile": "httyd_2.mkv"
+    "videoFile": "httyd_2.mp4"
   },
   {
     "title": "Як приборкати дракона 3",
@@ -47,7 +47,7 @@
     "imdbRating": "7.5",
     "genres": [ 8, 2 ],
     "imageFile": "httyd_3.jpg",
-    "videoFile": "httyd_3.mkv"
+    "videoFile": "httyd_3.mp4"
   },
   {
     "title": "Титанік",
@@ -57,7 +57,7 @@
     "imdbRating": "7.8",
     "genres": [ 3, 2 ],
     "imageFile": "titanic.jpg",
-    "videoFile": "titanic.mkv"
+    "videoFile": "titanic.mp4"
   },
   {
     "title": "Втеча з Шоушенка",
@@ -67,7 +67,7 @@
     "imdbRating": "9.3",
     "genres": [ 3, 2 ],
     "imageFile": "shawshank.jpg",
-    "videoFile": "shawshank.mkv"
+    "videoFile": "shawshank.mp4"
   },
   {
     "title": "Бійцівський клуб",
@@ -77,6 +77,6 @@
     "imdbRating": "8.8",
     "genres": [ 1, 3 ],
     "imageFile": "fight_club.jpg",
-    "videoFile": "fight_club.mkv"
+    "videoFile": "fight_club.mp4"
   }
 ]

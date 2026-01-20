@@ -60,5 +60,22 @@ public class MovieMapper : Profile
         CreateMap<MovieReactionModel, MovieReactionEntity>()
             .ForMember(x => x.Id, opt => opt.Ignore())
             .ForMember(x => x.UserId, opt => opt.Ignore());
+
+        CreateMap<MovieSeederModel, MovieEntity>()
+            .ForMember(dest => dest.MovieGenres, opt => opt.Ignore())
+            .ForMember(dest => dest.Image, opt => opt.Ignore())
+            .ForMember(dest => dest.Video, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.ReleaseDate, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.ReleaseDate)
+                    ? (DateTime?)null
+                    : DateTime.SpecifyKind(
+                        DateTime.ParseExact(src.ReleaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        DateTimeKind.Utc)))
+            .ForMember(dest => dest.ImdbRating, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.ImdbRating)
+                    ? (decimal?)null
+                    : decimal.Parse(src.ImdbRating, CultureInfo.InvariantCulture)));
+
     }
 }
