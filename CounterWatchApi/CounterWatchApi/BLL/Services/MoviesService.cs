@@ -267,7 +267,7 @@ public class MoviesService(
                 var videoPath = Path.Combine("/app/media/videos", movie.VideoFile);
                 if (File.Exists(videoPath))
                 {
-                    using var stream = File.OpenRead(videoPath);
+                    var stream = File.OpenRead(videoPath);
                     var formFile = new FormFile(stream, 0, stream.Length, null, movie.VideoFile)
                     {
                         Headers = new HeaderDictionary(),
@@ -296,5 +296,4 @@ public class MoviesService(
             _ => "application/octet-stream"
         };
     }
-
 }
