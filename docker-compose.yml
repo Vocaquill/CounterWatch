@@ -22,6 +22,8 @@ services:
     image: pedro007salo/counterwatch-api:latest
     container_name: counterwatch-api
     restart: unless-stopped
+    volumes:
+      - /data/counterwatch/media:/app/media
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
