@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 function ProfilePage() {
   // Тимчасові дані користувача (потім прийдуть з API/Store)
-  const [user, setUser] = useState({
+  const [user] = useState({
     firstName: "Ivan",
     lastName: "Ivanov",
     email: "ivanov@example.com",

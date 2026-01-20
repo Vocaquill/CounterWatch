@@ -5,7 +5,9 @@ using BLL.Models.Movie;
 using BLL.Models.Search;
 using DAL;
 using DAL.Entities.Movie;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace BLL.Services;
 
@@ -142,7 +144,7 @@ public class MoviesService(
             query = query.Where(x => x.ReleaseDate.Year <= toYear);
         }
 
-        if (decimal.TryParse(model.ImdbRatingFrom, out decimal ratingFrom))
+        if (decimal.TryParse(model.ImdbRatingFrom, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal ratingFrom))
         {
             query = query.Where(x => x.ImdbRating >= ratingFrom);
         }
@@ -221,4 +223,78 @@ public class MoviesService(
         context.Comments.Add(comment);
         await context.SaveChangesAsync();
     }
+
+    public async Task SeedMoviesAsync(string jsonPath)
+    {
+        if (!File.Exists(jsonPath))
+        {
+            Console.WriteLine($"[SEEDER] Movies.json not found at {jsonPath}");
+            return;
+        }
+
+        if (await context.Movies.AnyAsync())
+            return;
+
+        var json = await File.ReadAllTextAsync(jsonPath);
+        var movies = JsonConvert.DeserializeObject<List<MovieSeederModel>>(json);
+        if (movies == null || movies.Count == 0)
+            return;
+
+        foreach (var movie in movies)
+        {
+            var entity = mapper.Map<MovieEntity>(movie);
+
+            foreach (var genreId in movie.Genres.Distinct())
+                entity.MovieGenres.Add(new MovieGenreEntity { GenreId = genreId });
+
+            if (!string.IsNullOrWhiteSpace(movie.ImageFile))
+            {
+                var imagePath = Path.Combine("/app/media/images", movie.ImageFile);
+                if (File.Exists(imagePath))
+                {
+                    using var stream = File.OpenRead(imagePath);
+                    var formFile = new FormFile(stream, 0, stream.Length, null, movie.ImageFile)
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = GetContentType(movie.ImageFile)
+                    };
+                    entity.Image = await imageService.SaveImageAsync(formFile);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(movie.VideoFile))
+            {
+                var videoPath = Path.Combine("/app/media/videos", movie.VideoFile);
+                if (File.Exists(videoPath))
+                {
+                    using var stream = File.OpenRead(videoPath);
+                    var formFile = new FormFile(stream, 0, stream.Length, null, movie.VideoFile)
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = GetContentType(movie.VideoFile)
+                    };
+                    entity.Video = await videoService.SaveVideoAsync(formFile);
+                }
+            }
+
+            context.Movies.Add(entity);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private string GetContentType(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        return ext switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".mp4" => "video/mp4",
+            ".mkv" => "video/x-matroska",
+            _ => "application/octet-stream"
+        };
+    }
+
 }

@@ -19,6 +19,7 @@ public class DbSeeder(IServiceProvider serviceProvider) : IDbSeeder
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var genresService = scope.ServiceProvider.GetRequiredService<IGenresService>();
+        var movieService = scope.ServiceProvider.GetRequiredService<IMoviesService>();
         var usersService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<RoleEntity>>();
@@ -30,6 +31,8 @@ public class DbSeeder(IServiceProvider serviceProvider) : IDbSeeder
         await genresService.SeedGenresAsync(
             Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "JsonData", "Genres.json")
         );
+
+        await movieService.SeedMoviesAsync("/app/media/Movies.json"); // усе на серваку
 
         if (!context.Roles.Any())
         {

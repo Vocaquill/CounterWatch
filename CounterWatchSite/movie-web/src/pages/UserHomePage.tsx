@@ -1,84 +1,120 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { MovieCard } from '../components/movie/MovieCard.tsx';
-
-import { useSearchMoviesQuery } from '../services/api/apiMovies';
+import { Edit2, Trash2 } from 'lucide-react';
+import { MovieSearchFilters } from '../components/movie/MovieSearchFilters';
 import type { IMovieSearch } from '../types/movie';
-import {MovieSearchFilters} from "../components/movie/MovieSearchFilters.tsx";
+import {useDeleteMovieMutation, useSearchMoviesQuery} from '../services/api/apiMovies';
 import {Pagination} from "../components/Pagination.tsx";
+import DeleteMovieModal from '../components/movie/DeleteMovieModal.tsx';
 
-function UserHomePage() {
-  const navigate = useNavigate();
+function AdminMoviesPage() {
+    const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useState<IMovieSearch>({
-    title: '',
-    page: 1,
-    itemPerPage: 12,
-  });
+    const [searchParams, setSearchParams] = useState<IMovieSearch>({
+        title: '',
+        page: 1,
+        itemPerPage: 10,
+    });
 
-  const { data, isFetching } = useSearchMoviesQuery(searchParams);
+    const { data, isFetching, isError } = useSearchMoviesQuery(searchParams);
+    const [deleteMovie] = useDeleteMovieMutation();
 
-  const handleChange = <K extends keyof IMovieSearch>(
-      key: K,
-      value: IMovieSearch[K]
-  ) => {
-    setSearchParams((prev) => ({
-      ...prev,
-      [key]: value,
-      page: 1,
-    }));
-  };
+    const [movieToDelete, setMovieToDelete] = useState<{ id: number; title: string } | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  return (
-      <div className="min-h-screen bg-zinc-950 text-white pb-20">
+    const handleDelete = async () => {
+        if (!movieToDelete) return;
+        await deleteMovie({ id: movieToDelete.id });
+        setMovieToDelete(null);
+        setIsDeleteModalOpen(false);
+    };
 
-        <section className="w-full py-24 text-center">
-          <h1 className="text-6xl font-black italic uppercase">
-            Watch <span className="text-red-600">Movies</span>
-          </h1>
-        </section>
+    const handleSearchChange = <K extends keyof IMovieSearch>(key: K, value: IMovieSearch[K]) => {
+        setSearchParams(prev => ({
+            ...prev,
+            [key]: value,
+            page: 1,
+        }));
+    };
 
-        <MovieSearchFilters
-            searchParams={searchParams}
-            onChange={handleChange}
-        />
+    return (
+        <>
+            <div className="space-y-6 animate-in fade-in duration-500">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-white">Фільми</h1>
+                    <button
+                        onClick={() => navigate('/admin/movies/add')}
+                        className="px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-xl text-white font-bold flex items-center gap-2"
+                    >
+                        Додати фільм
+                    </button>
+                </div>
 
-        <section className="px-6 md:px-12 max-w-[1800px] mx-auto">
-          {isFetching && (
-              <div className="text-center py-20 text-zinc-500">
-                Завантаження...
-              </div>
-          )}
+                <MovieSearchFilters searchParams={searchParams} onChange={handleSearchChange} />
 
-          {!isFetching && data?.items.length === 0 && (
-              <div className="text-center py-20 text-zinc-500">
-                Нічого не знайдено
-              </div>
-          )}
+                <div className="overflow-x-auto bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl relative">
+                    <table className="w-full text-left border-collapse">
+                        { isFetching && <tr><td colSpan={5} className="p-12 text-center">Завантаження...</td></tr>}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {data?.items.map((movie) => (
-                <MovieCard
-                    key={movie.id}
-                    movie={movie}
-                    onClick={() => navigate(`/movie/${movie.slug}`)}
+                        <thead className="bg-zinc-800/50 text-zinc-500 text-[11px] uppercase tracking-[0.1em] font-bold">
+                        <tr>
+                            <th className="p-4 border-b border-zinc-800 w-20 text-center">ID</th>
+                            <th className="p-4 border-b border-zinc-800">Назва</th>
+                            <th className="p-4 border-b border-zinc-800">Slug</th>
+                            <th className="p-4 border-b border-zinc-800">Дата релізу</th>
+                            <th className="p-4 border-b border-zinc-800 text-right">Дії</th>
+                        </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-800">
+                        {isError ? (
+                            <tr><td colSpan={5} className="p-12 text-center text-red-500">Помилка завантаження</td></tr>
+                        ) : data?.items.length === 0 ? (
+                            <tr><td colSpan={5} className="p-12 text-center text-zinc-400 italic">Нічого не знайдено</td></tr>
+                        ) : (
+                            data?.items.map((movie) => (
+                                <tr key={movie.id} className="hover:bg-zinc-800/20 transition-colors group">
+                                    <td className="p-4 text-center">{movie.id}</td>
+                                    <td className="p-4 font-semibold text-zinc-200 group-hover:text-red-500">{movie.title}</td>
+                                    <td className="p-4 font-mono text-zinc-400">{movie.slug}</td>
+                                    <td className="p-4 text-zinc-400">{new Date(movie.releaseDate).toLocaleDateString('uk-UA')}</td>
+                                    <td className="p-4 text-right flex justify-end gap-2">
+                                        <button
+                                            onClick={() => navigate(`/admin/movies/edit/${movie.slug}`)}
+                                            className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white"
+                                        >
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => { setMovieToDelete({ id: movie.id, title: movie.title }); setIsDeleteModalOpen(true); }}
+                                            className="p-2 hover:bg-red-950/30 rounded-lg text-zinc-500 hover:text-red-500"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {data && (
+                    <Pagination
+                        currentPage={data.currentPage}
+                        totalPages={data.totalPages}
+                        onChange={(page) => setSearchParams(prev => ({ ...prev, page }))}
+                    />
+                )}
+
+                <DeleteMovieModal
+                    isOpen={isDeleteModalOpen}
+                    movieTitle={movieToDelete?.title || ''}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleDelete}
                 />
-            ))}
-          </div>
-
-          {data && (
-              <Pagination
-                  currentPage={data.currentPage}
-                  totalPages={data.totalPages}
-                  onChange={(page) =>
-                      setSearchParams((prev) => ({ ...prev, page }))
-                  }
-              />
-          )}
-        </section>
-      </div>
-  );
+            </div>
+        </>
+    );
 }
 
-export default UserHomePage;
+export default AdminMoviesPage;
