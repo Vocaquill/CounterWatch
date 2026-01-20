@@ -6,7 +6,7 @@ networks:
 
 services:
   db:
-    image: postgres:17
+    image: postgres:18
     container_name: counterwatch-db
     restart: unless-stopped
     environment:
@@ -28,7 +28,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
     ports:
-      - "8080:8080"   # відкритий порт для API назовні
+      - "8080:8080"
     depends_on:
       - db
     networks:
