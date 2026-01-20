@@ -8,19 +8,40 @@ const MIN_YEAR = 1950;
 const MAX_YEAR = new Date().getFullYear();
 
 export function YearRange({ from, to, onChange }: Props) {
+    const fromYear = from ? Number(from) : MIN_YEAR;
+    const toYear = to ? Number(to) : MAX_YEAR;
+
+    const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newFrom = Number(e.target.value);
+        if (newFrom > toYear) {
+            onChange(to, to);
+        } else {
+            onChange(String(newFrom), to);
+        }
+    };
+
+    const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTo = Number(e.target.value);
+        if (newTo < fromYear) {
+            onChange(from, from);
+        } else {
+            onChange(from, String(newTo));
+        }
+    };
+
     return (
         <div className="space-y-2">
             <div className="flex justify-between text-xs text-zinc-400">
-                <span>{from || MIN_YEAR}</span>
-                <span>{to || MAX_YEAR}</span>
+                <span>{fromYear}</span>
+                <span>{toYear}</span>
             </div>
 
             <input
                 type="range"
                 min={MIN_YEAR}
                 max={MAX_YEAR}
-                value={from ?? MIN_YEAR}
-                onChange={(e) => onChange(e.target.value, to)}
+                value={fromYear}
+                onChange={handleFromChange}
                 className="w-full accent-red-600"
             />
 
@@ -28,8 +49,8 @@ export function YearRange({ from, to, onChange }: Props) {
                 type="range"
                 min={MIN_YEAR}
                 max={MAX_YEAR}
-                value={to ?? MAX_YEAR}
-                onChange={(e) => onChange(from, e.target.value)}
+                value={toYear}
+                onChange={handleToChange}
                 className="w-full accent-red-600"
             />
         </div>
