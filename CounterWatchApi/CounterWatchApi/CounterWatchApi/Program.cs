@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowViteFrame", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://172.26.3.62")
+        policy.WithOrigins("http://localhost:5173", "http://3.65.1.94")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

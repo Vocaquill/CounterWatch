@@ -6,7 +6,7 @@ networks:
 
 services:
   db:
-    image: postgres:18
+    image: postgres:17
     container_name: counterwatch-db
     restart: unless-stopped
     environment:
