@@ -14,7 +14,7 @@ function UserHomePage() {
     const [searchParams, setSearchParams] = useState<IMovieSearch>({
         title: '',
         page: 1,
-        itemPerPage: 12,
+        itemPerPage: 4,
     });
 
     const { data, isFetching } = useSearchMoviesQuery(searchParams);
