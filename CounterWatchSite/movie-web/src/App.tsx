@@ -18,6 +18,7 @@ import EditMoviePage from "./pages/Admin/EditMoviePage.tsx";
 //For all 
 import AppLayout from './layouts/AppLayout.tsx'
 import SearchPage from './pages/SearchPage'
+import NotFoundPage from "./pages/NotFoundPage.tsx";
 
 function App() {
   return (
@@ -41,6 +42,8 @@ function App() {
             <Route path="edit/:slug" element={<EditMoviePage />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes >
   )
 }

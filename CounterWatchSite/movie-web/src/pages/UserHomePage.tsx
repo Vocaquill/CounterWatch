@@ -44,7 +44,7 @@ function UserHomePage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-12 -mt-20 relative z-20">
+      <section className="px-6 md:px-12 -mt-10 relative z-20">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <TrendingUp className="text-red-600" />
