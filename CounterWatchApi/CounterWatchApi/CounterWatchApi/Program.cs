@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowViteFrame", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://3.65.1.94")
+        policy.WithOrigins("http://localhost:5173", "https://counterwatch.itstep.click")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -187,7 +187,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseSwaggerUI(options =>
 {
     options.RoutePrefix = "swagger";
-    options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+    //options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+    options.SwaggerEndpoint("/api/openapi/v1.json", "JustDoIt API v1");
     options.OAuthUsePkce();
 });
 

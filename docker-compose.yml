@@ -28,7 +28,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=db;Database=counterwatch;Username=postgres;Password=postgres
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"   # 🔒 тільки localhost
     depends_on:
       - db
     networks:
@@ -39,7 +39,7 @@ services:
     container_name: counterwatch-web
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "127.0.0.1:8081:80"     # 🔒 тільки localhost
     depends_on:
       - api
     networks:
