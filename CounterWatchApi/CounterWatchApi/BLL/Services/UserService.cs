@@ -21,7 +21,8 @@ public class UserService(UserManager<UserEntity> userManager,
     IMapper mapper,
     IImageService imageService,
     RoleManager<RoleEntity> roleManager,
-    AppDbContext context) : IUserService
+    AppDbContext context,
+    IJwtTokenService tokenService) : IUserService
 {
     public async Task<List<UserItemModel>> GetAllUsersAsync()
     {
@@ -119,13 +120,41 @@ public class UserService(UserManager<UserEntity> userManager,
         }
     }
 
-    public async Task<UserItemModel> EditUserAsync(UserEditModel model)
+    public async Task<string> EditUserAsync(UserEditModel model)
     {
-        var existing = await context.Users.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
+        //var existing = await context.Users.FirstOrDefaultAsync(x => x.Id == model.Id && !x.IsDeleted);
 
-        existing.Email = model.Email;
-        existing.FirstName = model.FirstName;
-        existing.LastName = model.LastName;
+        //existing.Email = model.Email;
+        //existing.FirstName = model.FirstName;
+        //existing.LastName = model.LastName;
+
+        //if (model.Image != null)
+        //{
+        //    imageService.DeleteImageAsync(existing.Image);
+        //    existing.Image = await imageService.SaveImageAsync(model.Image);
+        //}
+
+        //if (model.Roles != null)
+        //{
+        //    var currentRoles = await userManager.GetRolesAsync(existing);
+        //    await userManager.RemoveFromRolesAsync(existing, currentRoles);
+        //    await userManager.AddToRolesAsync(existing, model.Roles);
+        //}
+
+        //await userManager.UpdateAsync(existing);
+
+        //var updatedUser = mapper.Map<UserItemModel>(existing);
+
+        //return updatedUser;
+
+        var existing = await userManager.FindByIdAsync(model.Id.ToString());
+        var userLogins = await context.UserLogins
+            .FirstOrDefaultAsync(ul => ul.UserId == existing!.Id);
+
+        if (userLogins != null && userLogins.LoginProvider == "Google" && existing!.Email != model.Email)
+            throw new InvalidOperationException("Cannot edit email for Google login user");
+
+        existing = mapper.Map(model, existing);
 
         if (model.Image != null)
         {
@@ -142,9 +171,8 @@ public class UserService(UserManager<UserEntity> userManager,
 
         await userManager.UpdateAsync(existing);
 
-        var updatedUser = mapper.Map<UserItemModel>(existing);
-
-        return updatedUser;
+        var jwtToken = await tokenService.CreateTokenAsync(existing);
+        return jwtToken;
     }
 
     public async Task<UserItemModel> GetUserById(int id)

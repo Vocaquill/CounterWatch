@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, TrendingUp, Calendar } from 'lucide-react';
+import { Play, TrendingUp } from 'lucide-react';
 import { MovieCard } from '../components/movie/MovieCard.tsx';
 import { useSearchMoviesQuery } from '../services/api/apiMovies';
 import { motion } from 'framer-motion';

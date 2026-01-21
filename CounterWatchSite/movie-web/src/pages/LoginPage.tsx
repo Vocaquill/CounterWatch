@@ -133,7 +133,8 @@ function LoginPage() {
                         <p className="text-red-500 text-sm">Неправильний логін або пароль</p>
                     )}
 
-                    <button type="submit" className="w-full bg-red-600 py-4 rounded-2xl font-black">
+                    <button type="submit"
+                            className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl font-black uppercase flex items-center justify-center gap-2">
                         Увійти <ArrowRight />
                     </button>
                 </form>

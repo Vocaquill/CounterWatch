@@ -38,30 +38,18 @@ function RegisterPage() {
 
     /* ================= SUBMIT ================= */
     const handleSubmit = async (e: React.FormEvent) => {
-        console.log(1);
         e.preventDefault();
         const reg: IRegister={
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
-            //imageFile: imageFile ?? null
         }
         if(imageFile){
             reg.imageFile = imageFile;
         }
-        // console.log(formData);
-        //const data = new FormData();
-        // data.append('FirstName', formData.firstName);
-        // data.append('LastName', formData.lastName);
-        // data.append('Email', formData.email);
-        // data.append('Password', formData.password);
-        // if (imageFile) data.append('ImageFile', imageFile);
-        // console.log(data);
+
         try {
-            // for (const pair of data.entries()) {
-            //     console.log(pair[0], pair[1]);
-            // }
             const result = await register(reg).unwrap();
             dispatch(loginSuccess(result.token));
             navigate('/');

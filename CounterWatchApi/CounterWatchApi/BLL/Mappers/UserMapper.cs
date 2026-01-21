@@ -28,5 +28,8 @@ public class UserMapper: Profile
         CreateMap<UserSeederModel, UserEntity>()
             .ForMember(opt => opt.UserName, opt => opt.MapFrom(x => x.Email))
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImagePath));
+
+        CreateMap<UserEditModel, UserEntity>()
+            .ForMember(dest => dest.Image, opt => opt.Ignore());
     }
 }

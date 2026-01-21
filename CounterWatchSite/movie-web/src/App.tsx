@@ -5,6 +5,7 @@ import UserHomePage from './pages/UserHomePage.tsx'
 import MoviePage from './pages/MoviePage';
 import LoginPage from './pages/LoginPage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
+import EditProfilePage from './pages/EditProfilePage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import CatalogPage from './pages/CatalogPage.tsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
@@ -29,6 +30,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/account" element={<ProfilePage />} />
+        <Route path="/edit-account" element={<EditProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
       </Route>

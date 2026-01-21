@@ -15,7 +15,7 @@ const getUserFromToken = (token: string): User | null => {
             email: decoded["email"] ?? decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] ?? "",
             image: decoded["image"] ?? "",
             token,
-            role: decoded["role"] ?? null,
+            role: decoded["roles"] ?? null,
         };
     } catch (e) {
         console.error("Invalid token", e);

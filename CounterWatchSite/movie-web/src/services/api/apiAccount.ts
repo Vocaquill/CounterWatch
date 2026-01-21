@@ -118,7 +118,7 @@ export const apiAccount = createApi({
                 const formData = serialize(credentials);
 
                 return{
-                    url: 'edit',
+                    url: 'EditAccount',
                     method: 'PUT',
                     body: formData,
                 };

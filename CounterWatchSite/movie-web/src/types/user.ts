@@ -26,7 +26,7 @@ export interface IUserEdit {
     firstName: string;
     lastName: string;
     email: string;
-    image?: string;
+    image?: File;
     roles?: string[];
 }
 
@@ -43,4 +43,10 @@ export interface ServerError {
     data: {
         errors: Record<string, string[]>;
     };
+}
+
+export interface INewPasswords {
+    oldPassword?: string;
+    newPassword: string;
+    confirmPassword: string
 }

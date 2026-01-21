@@ -16,7 +16,8 @@ public class AccountService(IJwtTokenService tokenService,
     IMapper mapper,
     IConfiguration configuration,
     IImageService imageService,
-    ISmtpService smtpService
+    ISmtpService smtpService,
+    IAuthService authService
     ) : IAccountService
 {
 
@@ -150,6 +151,32 @@ public class AccountService(IJwtTokenService tokenService,
 
         if (user != null)
             await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+    }
+
+    public async Task ChangePasswordAsync(AccountChangePasswordModel model) 
+    {
+        var user = await userManager.FindByIdAsync((await authService.GetUserId()).ToString());
+
+
+        if (user != null)
+        {
+            IdentityResult res;
+
+            if (await userManager.HasPasswordAsync(user))
+            {
+                res = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            }
+            else
+            {
+                res = await userManager.AddPasswordAsync(user, model.NewPassword);
+            }
+
+
+            if (!res.Succeeded)
+            {
+                throw new Exception("Failed to change password: " + string.Join(", ", res.Errors.Select(e => e.Description)));
+            }
+        }
     }
 
 }
