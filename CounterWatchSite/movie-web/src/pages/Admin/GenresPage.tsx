@@ -144,7 +144,7 @@ function GenresPage() {
                     </td>
                   </tr>
               ) : (
-                  data?.items.map((genre) => (
+                  data?.items.map((genre : IGenreItem) => (
                       <tr key={genre.id} className="hover:bg-zinc-800/20 group">
                         <td className="p-4 text-center text-xs font-mono text-zinc-500">
                           #{genre.id}
@@ -208,8 +208,8 @@ function GenresPage() {
           {data && (
               <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
                 <Pagination
-                    currentPage={data.currentPage}
-                    totalPages={data.totalPages}
+                    currentPage={data.pagination.currentPage}
+                    totalPages={data.pagination.totalPages}
                     onChange={(page) =>
                         setSearchParams((prev) => ({ ...prev, page }))
                     }
