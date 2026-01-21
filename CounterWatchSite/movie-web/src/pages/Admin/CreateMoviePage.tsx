@@ -12,6 +12,8 @@ import { PrimaryButton } from '../../components/form/PrimaryButton';
 import {useFormServerErrors} from "../../utils/useFormServerErrors.ts";
 import LoadingOverlay from "../../components/LoadingOverlay.tsx";
 
+import { slugify } from '../../utils/slugify';
+
 export default function CreateMoviePage() {
     const navigate = useNavigate();
     const [createMovie, {isLoading}] = useCreateMovieMutation();
@@ -39,8 +41,18 @@ export default function CreateMoviePage() {
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
 
-        setForm(prev => ({ ...prev, [name]: value }));
+        setForm(prev => {
+            const nextState = { ...prev, [name]: value };
+
+            if (name === 'title') {
+                nextState.slug = slugify(value);
+            }
+
+            return nextState;
+        });
+
         clearError(name);
+        if (name === 'title') clearError('slug');
     };
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

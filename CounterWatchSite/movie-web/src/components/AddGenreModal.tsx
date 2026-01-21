@@ -5,10 +5,10 @@ import { slugify } from '../utils/slugify';
 
 import { useCreateGenreMutation } from '../services/api/apiGenres';
 import { useFormServerErrors } from "../utils/useFormServerErrors";
-import { InputField } from '../components/form/InputField';
-import { FileUploadField } from '../components/form/FileUploadField';
-import { PrimaryButton } from '../components/form/PrimaryButton';
 import type { IGenreCreate } from '../types/genre';
+import {InputField} from "./form/InputField.tsx";
+import { FileUploadField } from './form/FileUploadField.tsx';
+import {PrimaryButton} from "./form/PrimaryButton.tsx";
 
 interface Props {
   isOpen: boolean;
