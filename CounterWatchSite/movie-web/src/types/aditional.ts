@@ -3,7 +3,7 @@ export interface IBaseSearch {
     itemPerPage: number;
 }
 
-export interface IPagedResponse<T> {
+export interface IPagedResult<T> {
     items: T[];
     pagination: {
         totalCount: number;
