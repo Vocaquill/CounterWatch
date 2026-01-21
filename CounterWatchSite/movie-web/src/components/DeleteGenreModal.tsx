@@ -1,38 +1,27 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 
-// Імпорти для Redux
-import type { AppDispatch } from '../store';
-import { deleteGenre } from '../store/slices/genresSlice.ts';
+import { useDeleteGenreMutation } from '../services/api/apiGenres';
 
 interface Props {
   isOpen: boolean;
   genreId: number | null;
   genreName: string;
   onClose: () => void;
-  onSuccess: () => void;
 }
 
-function DeleteGenreModal({ isOpen, genreId, genreName, onClose, onSuccess }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
-  const [isDeleting, setIsDeleting] = useState(false);
+function DeleteGenreModal({ isOpen, genreId, genreName, onClose }: Props) {
+  const [deleteGenre, { isLoading }] = useDeleteGenreMutation();
 
   const handleDelete = async () => {
-    if (genreId && !isDeleting) {
-      setIsDeleting(true);
-      try {
-        await dispatch(deleteGenre(genreId)).unwrap();
+    if (!genreId) return;
 
-        onSuccess();
-        onClose();
-      } catch (error) {
-        console.error("Помилка при видаленні жанру:", error);
-      } finally {
-        setIsDeleting(false);
-      }
+    try {
+      await deleteGenre({ id: genreId }).unwrap();
+      onClose();
+    } catch (e) {
+      console.error('Failed to delete genre', e);
     }
   };
 
@@ -44,45 +33,44 @@ function DeleteGenreModal({ isOpen, genreId, genreName, onClose, onSuccess }: Pr
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  onClick={!isDeleting ? onClose : undefined}
+                  onClick={!isLoading ? onClose : undefined}
                   className="absolute inset-0 bg-black/90 backdrop-blur-md"
               />
 
               <div className="relative z-10 w-full max-w-sm">
                 <PageTransition>
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl">
+
                     <div className="p-6 text-center">
-                      <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-                        {isDeleting ? (
-                            <Loader2 size={32} className="animate-spin" />
-                        ) : (
-                            <AlertTriangle size={32} />
-                        )}
+                      <div className="icon-danger">
+                        {isLoading ? <Loader2 className="animate-spin" /> : <AlertTriangle />}
                       </div>
 
-                      <h3 className="text-xl font-bold text-white mb-2">Видалити жанр?</h3>
-                      <p className="text-zinc-500 text-sm">
-                        Ви збираєтеся видалити жанр <span className="text-zinc-200 font-bold">"{genreName}"</span>.
-                        Цю дію неможливо буде скасувати.
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Видалити жанр?
+                      </h3>
+                      <p className="text-zinc-500">
+                        Ви збираєтеся видалити жанр <b>"{genreName}"</b>
                       </p>
                     </div>
 
-                    <div className="p-4 bg-zinc-950/50 border-t border-zinc-800 flex gap-3">
+                    <div className="p-4 border-t border-zinc-800 flex gap-3">
                       <button
                           onClick={onClose}
-                          disabled={isDeleting}
-                          className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl transition-all disabled:opacity-50"
+                          disabled={isLoading}
+                          className="btn-secondary"
                       >
                         Скасувати
                       </button>
                       <button
                           onClick={handleDelete}
-                          disabled={isDeleting}
-                          className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/20 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                          disabled={isLoading}
+                          className="btn-danger"
                       >
-                        {isDeleting ? 'Видалення...' : 'Видалити'}
+                        {isLoading ? 'Видалення...' : 'Видалити'}
                       </button>
                     </div>
+
                   </div>
                 </PageTransition>
               </div>

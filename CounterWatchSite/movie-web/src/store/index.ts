@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import genresReducer from './slices/genresSlice';
+// import genresReducer from './slices/genresSlice';
 import {apiMovies} from "../services/api/apiMovies.ts";
 import {type TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {apiGenres} from "../services/api/apiGenres.ts";
@@ -10,7 +10,7 @@ import authReducer from "./slices/authSlice.ts";
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        genres: genresReducer,
+        // genres: genresReducer,
         [apiMovies.reducerPath]: apiMovies.reducer,
         [apiGenres.reducerPath]: apiGenres.reducer,
         [apiAccount.reducerPath]: apiAccount.reducer,
