@@ -51,8 +51,7 @@ export const apiGenres = createApi({
                 method: "PUT",
                 body: serialize(body),
             }),
-            invalidatesTags: (result) =>
-                result ? [{ type: "Genre", id: result.id }] : ["Genres"],
+            invalidatesTags: ["Genres"],
         }),
 
         deleteGenre: builder.mutation<void, IGenreDelete>({

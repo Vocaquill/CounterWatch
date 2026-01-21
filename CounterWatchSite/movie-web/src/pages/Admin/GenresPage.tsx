@@ -27,7 +27,7 @@ function GenresPage() {
     name: '',
     slug: '',
     page: 1,
-    itemPerPage: 1,
+    itemPerPage: 5,
   });
 
   const [isAddOpen, setIsAddOpen] = useState(false);
