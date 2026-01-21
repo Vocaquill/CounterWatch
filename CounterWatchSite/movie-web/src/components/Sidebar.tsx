@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 // Якщо використовуєте іконки (наприклад, lucide-react)
-import { Home, Film, Star, Anvil } from 'lucide-react';
+import { ShieldCheck, Home, Film, Star, Anvil } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -52,6 +52,26 @@ function Sidebar({ isOpen }: SidebarProps) {
           </NavLink>
         ))}
       </nav>
+      {/* --- СЕКЦІЯ АДМІНІСТРАТОРА --- */}
+      <div className="pt-4 border-t border-white/5 space-y-2">
+        {isOpen && (
+          <p className="px-3 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
+            Адміністрування
+          </p>
+        )}
+        <Link
+          to="/admin/genres" // Або просто /admin
+          className={`flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent ${location.pathname.startsWith('/admin')
+            ? 'bg-zinc-800 text-white border-white/10'
+            : 'text-zinc-500 hover:bg-red-600/10 hover:text-red-500'
+            }`}
+        >
+          <ShieldCheck size={22} />
+          {isOpen && <span className="font-bold text-sm">Панель керування</span>}
+        </Link>
+      </div>
+
+
     </aside>
   );
 }
