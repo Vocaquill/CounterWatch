@@ -31,8 +31,17 @@ export const InputField = ({
             placeholder={placeholder}
             required={required}
             onChange={onChange}
-            className={`bg-zinc-900 rounded-xl px-4 py-3 border transition
+            className={`bg-zinc-900 text-white rounded-xl px-4 py-3 border transition
                 ${error ? 'border-red-500' : 'border-zinc-800'}
+                [color-scheme:dark]
+        
+                [&::-webkit-calendar-picker-indicator]:filter
+                [&::-webkit-calendar-picker-indicator]:invert
+                [&::-webkit-calendar-picker-indicator]:sepia
+                [&::-webkit-calendar-picker-indicator]:saturate-[500%]
+                [&::-webkit-calendar-picker-indicator]:hue-rotate-[-10deg]
+                [&::-webkit-calendar-picker-indicator]:opacity-90
+                [&::-webkit-calendar-picker-indicator]:cursor-pointer
             `}
         />
 

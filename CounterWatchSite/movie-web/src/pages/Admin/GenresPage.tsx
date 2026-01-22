@@ -184,7 +184,6 @@ function GenresPage() {
           )}
         </div>
 
-        {/* MODALS */}
         <AddGenreModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
 
         <EditGenreModal

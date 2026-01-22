@@ -17,14 +17,11 @@ function AppLayout() {
       <main className="flex-1 flex flex-col min-w-0">
         <Header isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
-        {/* Контейнер для контенту */}
         <div className="p-6 flex-grow">
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>
         </div>
-
-        {/* Додаємо футер сюди */}
         <Footer />
       </main>
     </div>
