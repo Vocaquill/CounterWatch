@@ -1,239 +1,206 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Search, Plus, Edit2, Trash2, Calendar, Link2, X, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Plus, Edit2, Trash2, Link2, X, Loader2 } from 'lucide-react';
 
-import AddGenreModal from '../../components/AddGenreModal.tsx';
-import EditGenreModal from '../../components/EditGenreModal.tsx';
-import DeleteGenreModal from '../../components/DeleteGenreModal.tsx';
+import AddGenreModal from '../../components/AddGenreModal';
+import EditGenreModal from '../../components/EditGenreModal';
+import DeleteModal from "../../components/ui/common/DeleteModal.tsx";
 
-// Імпорти з нашого стору
-import type { RootState, AppDispatch } from '../../store';
-import { fetchGenres } from '../../store/slices/genresSlice.ts';
-import type { GenreMovieAdmin } from '../../types/genre.ts';
+import type { IGenreItem, IGenreSearch } from '../../types/genre';
+import { useSearchGenresQuery, useDeleteGenreMutation } from '../../services/api/apiGenres';
+
+import { Pagination } from '../../components/Pagination';
+import { APP_ENV } from "../../env";
 
 function GenresPage() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  // 1. Отримуємо дані з Redux
-  const { items: genres, status, error } = useSelector((state: RootState) => state.genres);
-
-  // 2. Стейт для пошуку та модалок
-  const [searchTerm, setSearchTerm] = useState('');
-  const [slugSearch, setSlugSearch] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState<GenreMovieAdmin | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [genreToDelete, setGenreToDelete] = useState<GenreMovieAdmin | null>(null);
-
-  // 3. Завантаження даних при старті сторінки
-  useEffect(() => {
-    dispatch(fetchGenres());
-  }, [dispatch]);
-
-  // 4. Логіка фільтрації (працює з даними з Redux)
-  const filteredGenres = genres.filter(genre => {
-    const matchesMain =
-      genre.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      genre.id.toString().includes(searchTerm);
-
-    const matchesSlug =
-      genre.slug.toLowerCase().includes(slugSearch.toLowerCase());
-
-    return matchesMain && matchesSlug;
+  const [searchParams, setSearchParams] = useState<IGenreSearch>({
+    name: '',
+    slug: '',
+    page: 1,
+    itemPerPage: 10, // збільшив до 10 для кращого вигляду
   });
 
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState<IGenreItem | null>(null);
+
+  const { data, isFetching, isError } = useSearchGenresQuery(searchParams);
+  const [deleteGenre, { isLoading: isDeleting }] = useDeleteGenreMutation();
+
+  const handleSearchChange = <K extends keyof IGenreSearch>(key: K, value: IGenreSearch[K]) => {
+    setSearchParams((prev) => ({ ...prev, [key]: value, page: 1 }));
+  };
+
   const resetFilters = () => {
-    setSearchTerm('');
-    setSlugSearch('');
+    setSearchParams({ name: '', slug: '', page: 1, itemPerPage: searchParams.itemPerPage });
   };
 
-  const handleEditClick = (genre: GenreMovieAdmin) => {
-    setSelectedGenre(genre);
-    setIsEditModalOpen(true);
-  };
-
-  // --- ОНОВЛЕНІ ФУНКЦІЇ ЛОГІКИ ЧЕРЕЗ DISPATCH ---
-
-  const handleDeleteSuccess = () => {
-    setGenreToDelete(null); // Очищаємо стейт
-  };
-
-  const handleAddSuccess = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleUpdateSuccess = () => {
-    setIsEditModalOpen(false);
+  const handleDelete = async () => {
+    if (!selectedGenre) return;
+    try {
+      await deleteGenre({ id: selectedGenre.id }).unwrap();
+      setIsDeleteOpen(false);
+      setSelectedGenre(null);
+    } catch (e) {
+      console.error('Помилка видалення:', e);
+    }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Жанри</h1>
-          <p className="text-zinc-500 text-sm">Керування категоріями фільмів та їх URL-адресами</p>
-        </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-red-900/20 active:scale-95">
-          <Plus size={20} />
-          Додати жанр
-        </button>
-      </div>
-
-      {/* TOOLS: Пошук */}
-      <div className="bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800 backdrop-blur-sm flex flex-wrap items-center gap-4">
-        <div className="relative flex-[2] min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-          <input
-            type="text"
-            value={searchTerm}
-            placeholder="Пошук за назвою або ID..."
-            className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-2.5 pl-10 pr-4 outline-none focus:border-red-600 transition-all text-sm text-zinc-200"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <div className="relative flex-1 min-w-[180px]">
-          <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
-          <input
-            type="text"
-            value={slugSearch}
-            placeholder="Фільтр по slug..."
-            className="w-full bg-zinc-950 border border-zinc-700 rounded-xl py-2.5 pl-10 pr-4 outline-none focus:border-zinc-500 transition-all text-xs text-zinc-400 font-mono italic"
-            onChange={(e) => setSlugSearch(e.target.value)}
-          />
-        </div>
-
-        {(searchTerm || slugSearch) && (
-          <button onClick={resetFilters} className="p-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-xl transition-colors">
-            <X size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* TABLE */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl relative">
-        {/* Loading Overlay */}
-        {status === 'loading' && (
-          <div className="absolute inset-0 bg-zinc-900/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
-            <Loader2 className="text-red-600 animate-spin" size={40} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-white tracking-tight">Жанри</h1>
+            <p className="text-zinc-500 mt-1">Керування категоріями фільмів та їх відображенням</p>
           </div>
-        )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-zinc-800/50 text-zinc-500 text-[11px] uppercase tracking-[0.1em] font-bold">
+          <button
+              onClick={() => setIsAddOpen(true)}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-2xl text-white font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-red-600/20"
+          >
+            <Plus size={20} strokeWidth={3} />
+            ДОДАТИ ЖАНР
+          </button>
+        </div>
+
+        <div className="bg-zinc-950 p-4 rounded-[2rem] border border-zinc-800 flex flex-wrap items-center gap-4 shadow-xl">
+          <div className="relative flex-[2] min-w-[240px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            <input
+                value={searchParams.name || ''}
+                onChange={(e) => handleSearchChange('name', e.target.value)}
+                placeholder="Пошук за назвою..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-zinc-200 focus:border-red-600/50 outline-none transition-all"
+            />
+          </div>
+
+          <div className="relative flex-1 min-w-[180px]">
+            <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" size={16} />
+            <input
+                value={searchParams.slug || ''}
+                onChange={(e) => handleSearchChange('slug', e.target.value)}
+                placeholder="Фільтр по slug..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-xs text-zinc-400 font-mono italic outline-none focus:border-red-600/50 transition-all"
+            />
+          </div>
+
+          {(searchParams.name || searchParams.slug) && (
+              <button
+                  onClick={resetFilters}
+                  className="w-12 h-12 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-xl transition-colors border border-zinc-800"
+              >
+                <X size={20} />
+              </button>
+          )}
+        </div>
+
+        <div className="overflow-hidden bg-zinc-950 border border-zinc-800 rounded-[2rem] shadow-2xl relative">
+          {isFetching && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                <Loader2 className="animate-spin text-red-600" size={40} />
+              </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-zinc-900/50 text-zinc-500 text-[11px] uppercase tracking-[0.2em] font-black">
               <tr>
-                <th className="p-4 border-b border-zinc-800 text-center w-20">ID</th>
-                <th className="p-4 border-b border-zinc-800 w-24">Фото</th>
-                <th className="p-4 border-b border-zinc-800">Назва жанру</th>
-                <th className="p-4 border-b border-zinc-800">Slug (URL)</th>
-                <th className="p-4 border-b border-zinc-800">Створено</th>
-                <th className="p-4 border-b border-zinc-800 text-right">Дії</th>
+                <th className="p-5 w-24 text-center">ID</th>
+                <th className="p-5 w-28">Прев'ю</th>
+                <th className="p-5">Назва жанру</th>
+                <th className="p-5">Slug</th>
+                <th className="p-5 text-right">Дії</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {status === 'failed' ? (
-                <tr><td colSpan={6} className="p-12 text-center text-red-500">{error}</td></tr>
-              ) : filteredGenres.length > 0 ? (
-                filteredGenres.map((genre) => (
-                  <tr key={genre.id} className="hover:bg-zinc-800/20 transition-colors group">
-                    <td className="p-4 text-center">
-                      <span className="text-[10px] font-mono text-zinc-600">#{genre.id}</span>
-                    </td>
-                    <td className="p-4">
-                      <div className="w-12 h-12 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shadow-inner flex items-center justify-center">
-                        {genre.image ? (
-                          <img
-                            src={genre.image}
-                            alt={genre.name}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                          />
-                        ) : (
-                          <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-tighter text-center px-1 leading-none">
-                            No Image
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className="font-semibold text-zinc-200 group-hover:text-red-500 transition-colors">
+              </thead>
+
+              <tbody className="divide-y divide-zinc-900">
+              {isError ? (
+                  <tr><td colSpan={5} className="p-20 text-center text-red-500 font-bold">Помилка завантаження даних</td></tr>
+              ) : data?.items.length === 0 ? (
+                  <tr><td colSpan={5} className="p-20 text-center text-zinc-600 italic">Жанрів не знайдено</td></tr>
+              ) : (
+                  data?.items.map((genre: IGenreItem) => (
+                      <tr key={genre.id} className="hover:bg-zinc-900/40 transition-all group">
+                        <td className="p-5 text-center text-zinc-600 font-mono text-xs italic">#{genre.id}</td>
+
+                        <td className="p-5">
+                          <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 overflow-hidden shadow-inner group-hover:border-zinc-700 transition-colors">
+                            {genre.image ? (
+                                <img
+                                    src={APP_ENV.IMAGES_400_URL + genre.image}
+                                    alt={genre.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-zinc-700 uppercase text-[10px] font-black">No Pic</div>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="p-5">
+                      <span className="font-bold text-zinc-200 group-hover:text-white transition-colors">
                         {genre.name}
                       </span>
-                    </td>
-                    <td className="p-4">
-                      <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 font-mono text-[11px] text-zinc-500">
-                        {genre.slug}
+                        </td>
+
+                        <td className="p-5">
+                      <span className="px-3 py-1 bg-zinc-900 text-zinc-500 rounded-lg text-xs font-mono border border-zinc-800">
+                        /{genre.slug}
                       </span>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2 text-zinc-400 text-xs">
-                        <Calendar size={14} className="text-zinc-600" />
-                        {genre.dateCreate
-                          ? new Date(genre.dateCreate).toLocaleDateString('uk-UA')
-                          : 'Не вказано'}
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-1">
-                        <button onClick={() => handleEditClick(genre)} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-white transition-all">
-                          <Edit2 size={16} />
-                        </button>
-                        <button onClick={() => { setGenreToDelete(genre); setIsDeleteModalOpen(true); }} className="p-2 hover:bg-red-950/30 rounded-lg text-zinc-500 hover:text-red-500 transition-all">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="p-12 text-center">
-                    <div className="flex flex-col items-center gap-2 text-zinc-600 italic">
-                      <Search size={40} className="opacity-20 mb-2" />
-                      <span>{status === 'loading' ? 'Завантаження...' : 'Нічого не знайдено'}</span>
-                    </div>
-                  </td>
-                </tr>
+                        </td>
+
+                        <td className="p-5 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => { setSelectedGenre(genre); setIsEditOpen(true); }}
+                                className="w-10 h-10 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 rounded-xl text-zinc-400 hover:text-white transition-all border border-zinc-800"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button
+                                onClick={() => { setSelectedGenre(genre); setIsDeleteOpen(true); }}
+                                className="w-10 h-10 flex items-center justify-center bg-zinc-900 hover:bg-red-950/40 rounded-xl text-zinc-500 hover:text-red-500 transition-all border border-zinc-800"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                  ))
               )}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
+
+          {data && (
+              <div className="p-6 border-t border-zinc-900 bg-zinc-900/20">
+                <Pagination
+                    currentPage={data.pagination.currentPage}
+                    totalPages={data.pagination.totalPages}
+                    onChange={(page) => setSearchParams((prev) => ({ ...prev, page }))}
+                />
+              </div>
+          )}
         </div>
 
-        {/* PAGINATION */}
-        <div className="p-4 border-t border-zinc-800 flex items-center justify-between bg-zinc-900/50">
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-            Всього елементів: {filteredGenres.length}
-          </span>
-        </div>
+        <AddGenreModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
+
+        <EditGenreModal
+            isOpen={isEditOpen}
+            genre={selectedGenre}
+            onClose={() => { setIsEditOpen(false); setSelectedGenre(null); }}
+        />
+
+        <DeleteModal
+            isOpen={isDeleteOpen}
+            title="Видалити жанр?"
+            description={`Ви впевнені, що хочете видалити "${selectedGenre?.name}"? Всі фільми втратять цей зв'язок.`}
+            isLoading={isDeleting}
+            onConfirm={handleDelete}
+            onClose={() => { setIsDeleteOpen(false); setSelectedGenre(null); }}
+        />
       </div>
-
-      {/* Модалки */}
-      <AddGenreModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleAddSuccess}
-      />
-
-      <EditGenreModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        genre={selectedGenre}
-        onSave={handleUpdateSuccess}
-      />
-
-      <DeleteGenreModal
-        isOpen={isDeleteModalOpen}
-        genreId={genreToDelete?.id || null} // Передаємо ID
-        genreName={genreToDelete?.name || ''}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onSuccess={handleDeleteSuccess}
-      />
-    </div>
   );
 }
 
