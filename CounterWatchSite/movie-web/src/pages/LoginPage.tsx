@@ -133,6 +133,16 @@ function LoginPage() {
                         <p className="text-red-500 text-sm">Неправильний логін або пароль</p>
                     )}
 
+                    <div className="text-right">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/forgot-password')}
+                            className="text-sm text-red-500 hover:underline"
+                        >
+                            Забули пароль?
+                        </button>
+                    </div>
+
                     <button type="submit"
                             className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl font-black uppercase flex items-center justify-center gap-2">
                         Увійти <ArrowRight />

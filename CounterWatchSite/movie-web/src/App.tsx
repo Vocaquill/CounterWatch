@@ -9,6 +9,7 @@ import EditProfilePage from './pages/EditProfilePage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import CatalogPage from './pages/CatalogPage.tsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 //admin
 import AdminLayout from './layouts/AdminLayout.tsx'
 import GenresPage from './pages/Admin/GenresPage.tsx'
@@ -32,6 +33,7 @@ function App() {
         <Route path="/account" element={<ProfilePage />} />
         <Route path="/edit-account" element={<EditProfilePage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
       </Route>
       <Route path="/admin" element={<AdminLayout />}>

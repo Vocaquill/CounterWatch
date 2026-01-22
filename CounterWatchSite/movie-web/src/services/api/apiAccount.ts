@@ -68,7 +68,7 @@ export const apiAccount = createApi({
         }),
         forgotPassword: builder.mutation<void, IForgotPasswordRequest>({
             query: (data) => ({
-                url: 'forgot-password',
+                url: 'ForgotPassword',
                 method: 'POST',
                 body: data
             })
@@ -82,7 +82,7 @@ export const apiAccount = createApi({
         }),
         resetPassword: builder.mutation<void, IResetPasswordRequest>({
             query: (data) => ({
-                url: 'reset-password',
+                url: 'ResetPassword',
                 method: 'POST',
                 body: data
             })
