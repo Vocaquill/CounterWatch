@@ -141,8 +141,15 @@ namespace CounterWatchApi.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword([FromBody] AccountChangePasswordModel model)
         {
-            await accountService.ChangePasswordAsync(model);
-            return Ok();
+            try
+            {
+                await accountService.ChangePasswordAsync(model);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

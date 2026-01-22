@@ -89,7 +89,7 @@ export const apiAccount = createApi({
         }),
         changePassword: builder.mutation<void, IChangePasswordRequest>({
             query: (data) => ({
-                url: 'change-password',
+                url: 'ChangePassword',
                 method: 'POST',
                 body: data
             }),
