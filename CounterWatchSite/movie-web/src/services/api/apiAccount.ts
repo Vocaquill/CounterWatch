@@ -59,7 +59,7 @@ export const apiAccount = createApi({
         }),
         loginByGoogle: builder.mutation<{token: string}, string>({
             query: (token) => ({
-                url: 'google-login',
+                url: 'GoogleLogin',
                 method: 'POST',
                 body: {token}
             }),
@@ -68,7 +68,7 @@ export const apiAccount = createApi({
         }),
         forgotPassword: builder.mutation<void, IForgotPasswordRequest>({
             query: (data) => ({
-                url: 'forgot-password',
+                url: 'ForgotPassword',
                 method: 'POST',
                 body: data
             })
@@ -82,14 +82,14 @@ export const apiAccount = createApi({
         }),
         resetPassword: builder.mutation<void, IResetPasswordRequest>({
             query: (data) => ({
-                url: 'reset-password',
+                url: 'ResetPassword',
                 method: 'POST',
                 body: data
             })
         }),
         changePassword: builder.mutation<void, IChangePasswordRequest>({
             query: (data) => ({
-                url: 'change-password',
+                url: 'ChangePassword',
                 method: 'POST',
                 body: data
             }),
@@ -118,7 +118,7 @@ export const apiAccount = createApi({
                 const formData = serialize(credentials);
 
                 return{
-                    url: 'edit',
+                    url: 'EditAccount',
                     method: 'PUT',
                     body: formData,
                 };

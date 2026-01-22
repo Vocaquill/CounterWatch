@@ -11,7 +11,7 @@ function Footer() {
 
           <div className="space-y-4 col-span-1 md:col-span-1">
             <h2 className="text-2xl font-black tracking-tighter uppercase italic">
-              Counter<span className="text-red-600">Watch</span>
+              COUNTER<span className="text-red-600">WATCH</span>
             </h2>
             <p className="text-zinc-500 text-sm leading-relaxed">
               Найкращий досвід перегляду кіно онлайн. Твій власний кінотеатр у кишені.
@@ -68,7 +68,7 @@ function Footer() {
           </p>
           <div className="flex items-center gap-2 text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer group">
             <Mail size={14} className="group-hover:text-red-500 transition-colors" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">support@moviedom.com</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">support@counterwatch.com</span>
           </div>
         </div>
       </div>

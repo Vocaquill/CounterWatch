@@ -2,6 +2,8 @@
 using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Account;
+using BLL.Models.User;
+using BLL.Services;
 using DAL.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +17,9 @@ namespace CounterWatchApi.Controllers
     public class AccountController(IJwtTokenService jwtTokenService,
             IMapper mapper, IImageService imageService,
             UserManager<UserEntity> userManager,
-            IAccountService accountService) : ControllerBase
+            IAccountService accountService,
+            IUserService userService,
+            IAuthService authService) : ControllerBase
     {
         [HttpPost]
         [AllowAnonymous]
@@ -112,6 +116,40 @@ namespace CounterWatchApi.Controllers
         {
             await accountService.ResetPasswordAsync(model);
             return Ok();
+        }
+
+        [Authorize]
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> EditAccount([FromForm] UserEditModel model)
+        {
+            try
+            {
+                var userId = await authService.GetUserId();
+                model.Id = userId;
+                string res = await userService.EditUserAsync(model);
+
+                return Ok(new { Token = res });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] AccountChangePasswordModel model)
+        {
+            try
+            {
+                await accountService.ChangePasswordAsync(model);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
