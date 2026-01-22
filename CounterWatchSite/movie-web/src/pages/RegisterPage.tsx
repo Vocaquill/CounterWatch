@@ -4,10 +4,9 @@ import { Mail, Lock, User, Camera, ArrowRight, ChevronLeft } from 'lucide-react'
 import { motion } from 'framer-motion';
 import { message } from 'antd';
 import { useDispatch } from 'react-redux';
-
+import { loginSuccess } from "../store/slices/authSlice.ts";
 import { useRegisterMutation } from "../services/api/apiAccount.ts";
 import type { ServerError, IRegister } from "../types/user.ts";
-import { loginSuccess } from "../store/slices/authSlice.ts";
 import LoadingOverlay from "../components/ui/loading/LoadingOverlay.tsx";
 
 function RegisterPage() {
@@ -24,6 +23,7 @@ function RegisterPage() {
         password: '',
     });
 
+    const [errorMessage, setErrorMessage] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -48,12 +48,18 @@ function RegisterPage() {
         if(imageFile){
             reg.imageFile = imageFile;
         }
+        else {
+            setErrorMessage("Оберіть фото");
+            return;
+        }
 
         try {
             const result = await register(reg).unwrap();
             dispatch(loginSuccess(result.token));
             navigate('/');
+            setErrorMessage("");
         } catch (error) {
+            setErrorMessage("Помилка реєстрації");
             const serverError = error as ServerError;
 
             if (serverError?.status === 400) {
@@ -175,6 +181,10 @@ function RegisterPage() {
                             />
                         </div>
                     </div>
+
+                    {errorMessage && (
+                        <p className="text-red-500 text-sm font-semibold">{errorMessage}</p>
+                    )}
 
                     <button
                         type="submit"
