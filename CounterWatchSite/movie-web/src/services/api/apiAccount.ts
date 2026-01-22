@@ -59,7 +59,7 @@ export const apiAccount = createApi({
         }),
         loginByGoogle: builder.mutation<{token: string}, string>({
             query: (token) => ({
-                url: 'google-login',
+                url: 'GoogleLogin',
                 method: 'POST',
                 body: {token}
             }),
