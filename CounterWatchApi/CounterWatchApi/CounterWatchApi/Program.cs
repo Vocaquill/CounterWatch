@@ -64,6 +64,7 @@ builder.Services.AddOpenApi(options =>
 
         document.SetReferenceHostDocument();
 
+        /*
         document.Servers = new List<OpenApiServer>
         {
             new OpenApiServer
@@ -72,7 +73,7 @@ builder.Services.AddOpenApi(options =>
                 Description = "Production server"
             }
         };
-
+        */
         return Task.CompletedTask;
     });
 });
@@ -196,18 +197,34 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = $"/{videosDir}"
 });
 
-app.UseSwaggerUI(options =>
+app.MapOpenApi();
+
+if (app.Environment.IsDevelopment())
 {
-    options.RoutePrefix = "swagger";
-    //options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
-    options.SwaggerEndpoint("/api/openapi/v1.json", "JustDoIt API v1");
-    options.OAuthUsePkce();
-});
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+        options.OAuthUsePkce();
+    });
+}
+else
+{
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        //options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+        options.SwaggerEndpoint("/api/openapi/v1.json", "JustDoIt API v1");
+        options.OAuthUsePkce();
+    });
+}
+
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapOpenApi();
+
 app.MapControllers();
 
 app.Run();
