@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowViteFrame", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5281", "https://localhost:5281")
+        policy.WithOrigins("http://localhost:5173", "https://counterwatch.itstep.click")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -64,9 +64,19 @@ builder.Services.AddOpenApi(options =>
 
         document.SetReferenceHostDocument();
 
+        document.Servers = new List<OpenApiServer>
+        {
+            new OpenApiServer
+            {
+                Url = "https://counterwatch.itstep.click/api",
+                Description = "Production server"
+            }
+        };
+
         return Task.CompletedTask;
     });
 });
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -160,6 +170,8 @@ builder.Services.Configure<FormOptions>(options =>
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
+
 app.UseRouting();
 
 app.UseCors("AllowViteFrame");
@@ -187,7 +199,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseSwaggerUI(options =>
 {
     options.RoutePrefix = "swagger";
-    options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+    //options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
+    options.SwaggerEndpoint("/api/openapi/v1.json", "JustDoIt API v1");
     options.OAuthUsePkce();
 });
 

@@ -1,156 +1,108 @@
-import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Link2, Type, Loader2 } from 'lucide-react';
-import { slugify } from '../utils/slugify.ts';
-import PageTransition from '../components/PageTransition';
+import { X, Loader2 } from 'lucide-react';
+import { slugify } from '../utils/slugify';
 
-// Імпорти для Redux
-import type { AppDispatch } from '../store';
-import { updateGenre } from '../store/slices/genresSlice.ts';
-import type { GenreMovieAdmin } from '../types/genre.ts';
+import { useEditGenreMutation } from '../services/api/apiGenres';
+import { useFormServerErrors } from "../utils/useFormServerErrors";
+import type { IGenreItem, IGenreEdit } from '../types/genre';
+import { InputField } from '../components/form/InputField';
+import { FileUploadField } from '../components/form/FileUploadField';
+import { PrimaryButton } from '../components/form/PrimaryButton';
+import { APP_ENV } from '../env';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  genre: GenreMovieAdmin | null;
-  onSave: () => void;
+  genre: IGenreItem | null;
 }
 
-function EditGenreModal({ isOpen, onClose, genre, onSave }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
+function EditGenreModal({ isOpen, onClose, genre }: Props) {
+  const [editGenre, { isLoading }] = useEditGenreMutation();
+  const { errors, setServerErrors, clearError, clearAllErrors } = useFormServerErrors();
 
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState<IGenreEdit | null>(null);
 
-  // Підтягуємо дані при відкритті
-  useEffect(() => {
-    if (genre && isOpen) {
-      setName(genre.name);
-      setSlug(genre.slug);
-    }
-  }, [genre, isOpen]);
+  if (!isOpen) {
+    if (form) setForm(null); // Скидаємо стейт, коли модалка закрита
+    return null;
+  }
 
-  // Авто-генерація slug
-  useEffect(() => {
-    if (name && genre && name !== genre.name) {
-      setSlug(slugify(name));
-    }
-  }, [name, genre]);
+  if (!genre) return null;
 
-  const handleSave = async () => {
-    if (genre && name.trim() && !isSubmitting) {
-      setIsSubmitting(true);
-      try {
-        await dispatch(updateGenre({
-          ...genre,
-          name,
-          slug
-        })).unwrap();
+  // Ініціалізація форми як у твоїх фільмах
+  if (!form || form.id !== genre.id) {
+    setForm({
+      id: genre.id,
+      name: genre.name,
+      slug: genre.slug,
+      image: undefined
+    });
+    return null;
+  }
 
-        onSave();
-        onClose();
-      } catch (error) {
-        console.error("Помилка при оновленні жанру:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => prev ? ({
+      ...prev,
+      [name]: value,
+      ...(name === 'name' ? { slug: slugify(value) } : {})
+    }) : null);
+    clearError(name);
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => prev ? ({ ...prev, image: e.target.files?.[0] }) : null);
+    clearError('image');
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    clearAllErrors();
+    try {
+      await editGenre(form).unwrap();
+      onClose();
+    } catch (err: any) {
+      if (err?.data?.errors) setServerErrors(err.data.errors);
     }
   };
 
   return (
       <AnimatePresence>
-        {isOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={onClose}
-                  className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-              />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={onClose} />
 
-              <div className="relative z-10 w-full max-w-md">
-                <PageTransition>
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
-
-                    {/* Header */}
-                    <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-                      <div>
-                        <h3 className="text-xl font-bold text-white">Редагувати жанр</h3>
-                        <p className="text-zinc-500 text-[10px] font-mono mt-1 uppercase tracking-tighter">
-                          ID: #{genre?.id}
-                        </p>
-                      </div>
-                      <button
-                          onClick={onClose}
-                          className="text-zinc-500 hover:text-white transition-colors"
-                          disabled={isSubmitting}
-                      >
-                        <X size={24} />
-                      </button>
-                    </div>
-
-                    {/* Form */}
-                    <div className="p-6 space-y-5">
-                      <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <Type size={14} /> Назва жанру
-                        </label>
-                        <input
-                            type="text"
-                            value={name}
-                            disabled={isSubmitting}
-                            onChange={(e) => setName(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 outline-none focus:border-red-600 transition-all text-white disabled:opacity-50"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <Link2 size={14} /> Технічний Slug
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 text-sm">/</span>
-                          <input
-                              readOnly
-                              type="text"
-                              value={slug}
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-7 pr-4 text-zinc-500 font-mono text-sm cursor-not-allowed"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="p-6 bg-zinc-950/50 border-t border-zinc-800 flex gap-3">
-                      <button
-                          onClick={onClose}
-                          disabled={isSubmitting}
-                          className="flex-1 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-all disabled:opacity-50"
-                      >
-                        Скасувати
-                      </button>
-                      <button
-                          onClick={handleSave}
-                          disabled={isSubmitting || !name.trim()}
-                          className="flex-2 px-8 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-900/20 active:scale-95 disabled:opacity-50"
-                      >
-                        {isSubmitting ? (
-                            <Loader2 size={18} className="animate-spin" />
-                        ) : (
-                            <Save size={18} />
-                        )}
-                        {isSubmitting ? 'Оновлення...' : 'Оновити'}
-                      </button>
-                    </div>
-                  </div>
-                </PageTransition>
+          <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="relative z-10 w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black text-white">Редагувати</h3>
+                <p className="text-xs text-zinc-500 font-mono italic">ID: #{genre.id}</p>
               </div>
+              <button onClick={onClose} className="text-zinc-500 hover:text-white"><X size={24} /></button>
             </div>
-        )}
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <InputField label="Назва" name="name" value={form.name} onChange={handleChange} error={errors.name} />
+              <InputField label="Slug" name="slug" value={form.slug} onChange={handleChange} error={errors.slug} />
+              <FileUploadField label="Змінити фото" name="image" onChange={handleFileChange} accept="image/*" error={errors.image} />
+
+              <div className="mt-2">
+                {form.image ? (
+                    <img src={URL.createObjectURL(form.image)} className="w-full h-32 object-cover rounded-xl border border-red-600/50" />
+                ) : genre.image ? (
+                    <img src={APP_ENV.IMAGES_400_URL + genre.image} className="w-full h-32 object-cover rounded-xl border border-zinc-800" />
+                ) : null}
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl bg-zinc-900 text-white font-bold transition-all">Скасувати</button>
+                <PrimaryButton type="submit">
+                  {isLoading ? <Loader2 className="animate-spin mx-auto" /> : 'Оновити'}
+                </PrimaryButton>
+              </div>
+            </form>
+          </motion.div>
+        </div>
       </AnimatePresence>
   );
 }

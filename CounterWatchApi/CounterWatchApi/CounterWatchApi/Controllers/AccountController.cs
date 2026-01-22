@@ -2,9 +2,13 @@
 using BLL.Constants;
 using BLL.Interfaces;
 using BLL.Models.Account;
+using BLL.Models.User;
+using BLL.Services;
 using DAL.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CounterWatchApi.Controllers
 {
@@ -13,12 +17,15 @@ namespace CounterWatchApi.Controllers
     public class AccountController(IJwtTokenService jwtTokenService,
             IMapper mapper, IImageService imageService,
             UserManager<UserEntity> userManager,
-            IAccountService accountService) : ControllerBase
+            IAccountService accountService,
+            IUserService userService,
+            IAuthService authService) : ControllerBase
     {
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] AccountLoginModel model)
         {
-            var user = await userManager.FindByEmailAsync(model.Email);
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email && !x.IsDeleted);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = await jwtTokenService.CreateTokenAsync(user);
@@ -28,6 +35,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Register([FromForm] AccountRegisterModel model)
         {
@@ -58,6 +66,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GoogleLogin([FromBody] AccountGoogleLoginRequestModel model)
         {
             string result = await accountService.LoginByGoogle(model.Token);
@@ -78,6 +87,7 @@ namespace CounterWatchApi.Controllers
 
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromBody] AccountForgotPasswordModel model)
         {
             bool res = await accountService.ForgotPasswordAsync(model);
@@ -93,6 +103,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> ValidateResetToken([FromQuery] AccountValidateResetTokenModel model)
         {
             bool res = await accountService.ValidateResetTokenAsync(model);
@@ -100,10 +111,45 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] AccountResetPasswordModel model)
         {
             await accountService.ResetPasswordAsync(model);
             return Ok();
+        }
+
+        [Authorize]
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> EditAccount([FromForm] UserEditModel model)
+        {
+            try
+            {
+                var userId = await authService.GetUserId();
+                model.Id = userId;
+                string res = await userService.EditUserAsync(model);
+
+                return Ok(new { Token = res });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] AccountChangePasswordModel model)
+        {
+            try
+            {
+                await accountService.ChangePasswordAsync(model);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

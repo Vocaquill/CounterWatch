@@ -9,5 +9,6 @@ public interface IUserService
     Task<SearchResult<UserItemModel>> SearchUsersAsync(UserSearchModel model);
     Task<UserItemModel> GetUserById(int id);
     Task DeleteUser(int id);
-    Task<UserItemModel> EditUserAsync(UserEditModel model);
+    Task<string> EditUserAsync(UserEditModel model);
+    Task SeedUsersAsync(string jsonPath);
 }

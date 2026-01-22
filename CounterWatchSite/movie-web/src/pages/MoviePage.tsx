@@ -13,7 +13,7 @@ import { useGetBySlugQuery, useReactMovieMutation } from '../services/api/apiMov
 import { MoviePlayer } from "../components/movie/MoviePlayer.tsx";
 import { APP_ENV } from "../env";
 import { MovieComments } from "../components/movie/MovieComments.tsx";
-import { useState } from "react";
+import LoadingOverlay from "../components/LoadingOverlay.tsx";
 
 function MoviePage() {
   const navigate = useNavigate();
@@ -26,17 +26,7 @@ function MoviePage() {
 
   const [reactMovie] = useReactMovieMutation();
 
-  const [likesCount, setLikesCount] = useState(movie?.likesCount ?? 0);
-  const [dislikesCount, setDislikesCount] = useState(movie?.dislikesCount ?? 0);
-
-  if (isLoading) {
-    return (
-        <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-          Завантаження...
-        </div>
-    );
-  }
-
+  if (isLoading) return <LoadingOverlay />;
   if (!movie) return null;
 
   const releaseYear = new Date(movie.releaseDate).getFullYear();
@@ -44,10 +34,6 @@ function MoviePage() {
   const handleReaction = async (isLike: boolean) => {
     try {
       await reactMovie({ movieId: movie.id, isLike }).unwrap();
-
-      // Миттєво оновлюємо UI
-      if (isLike) setLikesCount((prev) => prev + 1);
-      else setDislikesCount((prev) => prev + 1);
     } catch (error) {
       console.error('Помилка при відправці реакції', error);
     }
@@ -57,7 +43,6 @@ function MoviePage() {
       <PageTransition>
         <div className="min-h-screen bg-zinc-950 text-white pb-20">
 
-          {/* Блок з банером */}
           <div className="relative h-[60vh] overflow-hidden">
             <img
                 src={
@@ -73,7 +58,7 @@ function MoviePage() {
             <div className="relative z-10 p-6">
               <button
                   onClick={() => navigate(-1)}
-                  className="p-3 bg-zinc-900/60 rounded-full hover:bg-zinc-800"
+                  className="p-3 bg-zinc-900/60 rounded-full hover:bg-zinc-800 transition-colors"
               >
                 <ChevronLeft />
               </button>
@@ -91,8 +76,8 @@ function MoviePage() {
                           key={g.id}
                           className="px-3 py-1 text-xs font-bold rounded-full border border-red-600/40 text-red-500 bg-red-600/10"
                       >
-                    {g.name}
-                  </span>
+                  {g.name}
+                </span>
                   ))}
                 </div>
 
@@ -116,15 +101,17 @@ function MoviePage() {
                   <div className="flex items-center gap-4">
                     <button
                         onClick={() => handleReaction(true)}
-                        className="flex items-center gap-1 hover:text-green-400 transition-colors"
+                        className="flex items-center gap-2 hover:text-green-400 transition-colors bg-zinc-900/40 px-3 py-1.5 rounded-lg border border-zinc-800"
                     >
-                      <ThumbsUp size={14} /> {likesCount}
+                      <ThumbsUp size={16} />
+                      <span className="font-bold text-white">{movie.likesCount}</span>
                     </button>
                     <button
                         onClick={() => handleReaction(false)}
-                        className="flex items-center gap-1 hover:text-red-400 transition-colors"
+                        className="flex items-center gap-2 hover:text-red-400 transition-colors bg-zinc-900/40 px-3 py-1.5 rounded-lg border border-zinc-800"
                     >
-                      <ThumbsDown size={14} /> {dislikesCount}
+                      <ThumbsDown size={16} />
+                      <span className="font-bold text-white">{movie.dislikesCount}</span>
                     </button>
                   </div>
                 </div>
@@ -132,7 +119,6 @@ function MoviePage() {
             </div>
           </div>
 
-          {/* Основний контент */}
           <div className="px-6 md:px-12 grid grid-cols-1 lg:grid-cols-3 gap-12 -mt-10 relative z-20">
             <div className="lg:col-span-2 space-y-10">
 
@@ -157,8 +143,8 @@ function MoviePage() {
             <div className="space-y-8">
               {movie.trailerUrl && (
                   <div>
-                    <h3 className="font-bold uppercase text-sm mb-3">Трейлер</h3>
-                    <div className="aspect-video rounded-2xl overflow-hidden border border-zinc-800">
+                    <h3 className="font-bold uppercase text-sm mb-3 text-zinc-500 tracking-wider">Трейлер</h3>
+                    <div className="aspect-video rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
                       <iframe
                           src={toYoutubeEmbed(movie.trailerUrl) ?? undefined}
                           className="w-full h-full"

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, Loader2, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, Loader2, ChevronDown } from 'lucide-react';
 import { MovieCard } from '../components/movie/MovieCard.tsx';
 import { Pagination } from "../components/Pagination.tsx";
-import { MovieSearchFilters } from "../components/movie/MovieSearchFilters.tsx"; // Твій компонент з повзунками
+import { MovieSearchFilters } from "../components/movie/MovieSearchFilters.tsx";
 import PageTransition from '../components/PageTransition';
 import { useSearchMoviesQuery } from '../services/api/apiMovies';
 import type { IMovieSearch } from '../types/movie';
@@ -16,8 +16,6 @@ function CatalogPage() {
     title: '',
     page: 1,
     itemPerPage: 12,
-    // Тут автоматично підтягнуться інші поля (genreId, year тощо), 
-    // якщо вони є в твоєму IMovieSearch
   });
 
   const { data, isFetching } = useSearchMoviesQuery(searchParams);
@@ -29,7 +27,7 @@ function CatalogPage() {
     setSearchParams((prev) => ({
       ...prev,
       [key]: value,
-      page: 1, // Скидаємо на першу сторінку при зміні фільтрів
+      page: 1,
     }));
   };
 
@@ -38,7 +36,6 @@ function CatalogPage() {
       <div className="min-h-screen bg-black text-white p-6 md:p-12 pt-24">
         <div className="max-w-[1600px] mx-auto space-y-8">
 
-          {/* Header & Search Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-zinc-500/20 p-8 rounded-[3rem] border border-white/5 backdrop-blur-md">
             <div className="flex-1">
               <h1 className="text-4xl font-black uppercase italic tracking-tighter">
@@ -47,7 +44,6 @@ function CatalogPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-              {/* Рядок пошуку */}
               <div className="relative group w-full sm:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-red-600 transition-colors" size={20} />
                 <input
@@ -59,7 +55,6 @@ function CatalogPage() {
                 />
               </div>
 
-              {/* Кнопка відкриття фільтрів */}
               <button
                 onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all border ${isFiltersOpen
@@ -74,7 +69,6 @@ function CatalogPage() {
             </div>
           </div>
 
-          {/* Висувна панель твоїх фільтрів (MovieSearchFilters) */}
           {isFiltersOpen && (
             <div className="animate-in slide-in-from-top duration-500 fade-in">
               <div className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-white/5 shadow-inner">
@@ -86,7 +80,6 @@ function CatalogPage() {
             </div>
           )}
 
-          {/* Результати */}
           <div className="min-h-[400px]">
             {isFetching ? (
               <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -116,12 +109,11 @@ function CatalogPage() {
             )}
           </div>
 
-          {/* Пагінація */}
-          {data && data.totalPages > 1 && (
+          {data && data.pagination.totalPages > 1 && (
             <div className="pt-12 border-t border-white/5 flex justify-center">
               <Pagination
-                currentPage={data.currentPage}
-                totalPages={data.totalPages}
+                currentPage={data.pagination.currentPage}
+                totalPages={data.pagination.totalPages}
                 onChange={(page) => handleChange('page', page)}
               />
             </div>

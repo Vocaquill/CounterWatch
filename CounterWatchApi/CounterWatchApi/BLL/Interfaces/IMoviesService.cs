@@ -15,4 +15,6 @@ public interface IMoviesService
     Task ReactMovieAsync(MovieReactionModel model);
 
     Task AddCommentAsync(MovieCommentCreateModel model);
+
+    Task SeedMoviesAsync(string jsonPath);
 }

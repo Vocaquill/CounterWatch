@@ -27,7 +27,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = Roles.Admin)]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateMovie([FromForm] MovieCreateModel model)
         {
@@ -36,7 +36,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPut]
-        //[Authorize(Roles = Roles.Admin)]
+        [Authorize(Roles = Roles.Admin)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> EditMovie([FromForm] MovieEditModel model)
         {
@@ -45,7 +45,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(Roles = Roles.Admin)]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteMovie([FromBody] MovieDeleteModel model)
         {
             await moviesService.DeleteMovieAsync(model);
@@ -53,7 +53,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost("React")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> ReactMovie([FromBody] MovieReactionModel model)
         {
             await moviesService.ReactMovieAsync(model);
@@ -61,7 +61,7 @@ namespace CounterWatchApi.Controllers
         }
 
         [HttpPost("AddComment")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AddComment([FromBody] MovieCommentCreateModel model)
         {
             await moviesService.AddCommentAsync(model);

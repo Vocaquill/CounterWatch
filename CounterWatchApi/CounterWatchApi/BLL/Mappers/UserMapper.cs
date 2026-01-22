@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.Models.Account;
+using BLL.Models.Seeder;
 using BLL.Models.User;
 using DAL.Entities.Identity;
 
@@ -23,5 +24,12 @@ public class UserMapper: Profile
         CreateMap<AccountGoogleAccountModel, UserEntity>()
             .ForMember(x => x.Image, opt => opt.Ignore())
             .ForMember(x => x.UserName, opt => opt.MapFrom(x => x.Email));
+
+        CreateMap<UserSeederModel, UserEntity>()
+            .ForMember(opt => opt.UserName, opt => opt.MapFrom(x => x.Email))
+            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImagePath));
+
+        CreateMap<UserEditModel, UserEntity>()
+            .ForMember(dest => dest.Image, opt => opt.Ignore());
     }
 }

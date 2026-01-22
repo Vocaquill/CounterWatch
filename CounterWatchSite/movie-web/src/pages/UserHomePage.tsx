@@ -1,19 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import { Play, TrendingUp, Calendar } from 'lucide-react';
+import { Play, TrendingUp } from 'lucide-react';
 import { MovieCard } from '../components/movie/MovieCard.tsx';
 import { useSearchMoviesQuery } from '../services/api/apiMovies';
 import { motion } from 'framer-motion';
 
 function UserHomePage() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  // Беремо останні 6 фільмів для головної
   const { data, isLoading } = useSearchMoviesQuery({ page: 1, itemPerPage: 6 });
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
 
-      {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center px-6 md:px-12 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -46,8 +44,7 @@ function UserHomePage() {
         </div>
       </section>
 
-      {/* Grid Section */}
-      <section className="px-6 md:px-12 -mt-20 relative z-20">
+      <section className="px-6 md:px-12 -mt-10 relative z-20">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <TrendingUp className="text-red-600" />

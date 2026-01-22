@@ -9,17 +9,15 @@ function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
 
-          {/* Brand Section */}
           <div className="space-y-4 col-span-1 md:col-span-1">
             <h2 className="text-2xl font-black tracking-tighter uppercase italic">
-              MOVIE<span className="text-red-600">DOM</span>
+              COUNTER<span className="text-red-600">WATCH</span>
             </h2>
             <p className="text-zinc-500 text-sm leading-relaxed">
               Найкращий досвід перегляду кіно онлайн. Твій власний кінотеатр у кишені.
             </p>
           </div>
 
-          {/* Navigation */}
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white">Навігація</h3>
             <ul className="space-y-2 text-sm text-zinc-500 font-bold">
@@ -39,7 +37,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white">Підтримка</h3>
             <ul className="space-y-2 text-sm text-zinc-500 font-bold">
@@ -49,7 +46,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Socials */}
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white">Ми в мережі</h3>
             <div className="flex gap-4">
@@ -68,11 +64,11 @@ function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 gap-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
-            © {currentYear} MOVIEDOM. ВСІ ПРАВА ЗАХИЩЕНІ.
+            © {currentYear} COUNTERWATCH. ВСІ ПРАВА ЗАХИЩЕНІ.
           </p>
           <div className="flex items-center gap-2 text-zinc-600 hover:text-zinc-400 transition-colors cursor-pointer group">
             <Mail size={14} className="group-hover:text-red-500 transition-colors" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">support@moviedom.com</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">support@counterwatch.com</span>
           </div>
         </div>
       </div>
