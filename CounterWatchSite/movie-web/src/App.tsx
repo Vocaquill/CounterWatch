@@ -15,6 +15,7 @@ import Dashboard from './pages/Admin/Dashboard.tsx'
 import AdminMoviesPage from "./pages/Admin/AdminMoviesPage.tsx";
 import CreateMoviePage from "./pages/Admin/CreateMoviePage.tsx";
 import EditMoviePage from "./pages/Admin/EditMoviePage.tsx";
+import UsersPage from './pages/Admin/UsersPage.tsx';
 //For all 
 import AppLayout from './layouts/AppLayout.tsx'
 import SearchPage from './pages/SearchPage'
@@ -35,10 +36,11 @@ function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="genres" element={<GenresPage />} />
+        <Route path="users" element={<UsersPage />} />
         <Route path="movies">
-            <Route index element={<AdminMoviesPage />} />
-            <Route path="add" element={<CreateMoviePage />} />
-            <Route path="edit/:slug" element={<EditMoviePage />} />
+          <Route index element={<AdminMoviesPage />} />
+          <Route path="add" element={<CreateMoviePage />} />
+          <Route path="edit/:slug" element={<EditMoviePage />} />
         </Route>
       </Route>
     </Routes >
