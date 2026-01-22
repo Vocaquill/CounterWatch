@@ -11,7 +11,7 @@ import {loginSuccess} from "../store/slices/authSlice.ts";
 
 function EditProfilePage() {
     const {user} = useAppSelector(state => state.auth);
-    const [edit, {isLoading, isError, error }] = useEditAccountMutation()
+    const [edit, {isLoading }] = useEditAccountMutation()
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const navigate = useNavigate();

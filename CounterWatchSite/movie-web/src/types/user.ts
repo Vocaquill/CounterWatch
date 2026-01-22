@@ -22,7 +22,6 @@ export interface User {
 }
 
 export interface IUserEdit {
-    id: number;
     firstName: string;
     lastName: string;
     email: string;
