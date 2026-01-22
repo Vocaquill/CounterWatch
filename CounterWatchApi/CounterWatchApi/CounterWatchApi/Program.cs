@@ -188,7 +188,7 @@ app.UseSwaggerUI(options =>
 {
     options.RoutePrefix = "swagger";
     //options.SwaggerEndpoint("/openapi/v1.json", "JustDoIt API v1");
-    options.SwaggerEndpoint("/api/openapi/v1.json", "JustDoIt API v1");
+    options.SwaggerEndpoint("/aspapi/openapi/v1.json", "JustDoIt API v1");
     options.OAuthUsePkce();
 });
 
